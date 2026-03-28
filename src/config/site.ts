@@ -6,7 +6,7 @@ export const SITE = {
   website: "https://blog.nycanshu.dev/",
   author: "nycanshu",
   profile: "https://github.com/nycanshu",
-  desc: "Backend engineer writing about Java, Node.js, Ceph, Kubernetes, and open source tooling.",
+  desc: "Software engineer who builds things, digs into infrastructure, and writes about what he learns along the way.",
   title: "nycanshu",
   ogImage: "og-default.jpg",
   lightAndDarkMode: true,
