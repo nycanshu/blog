@@ -16,7 +16,7 @@ export const SITE = {
   showArchives: true,
   showBackButton: true,
   editPost: {
-    enabled: true,
+    enabled: false,
     text: "Edit on GitHub",
     url: "https://github.com/nycanshu/blog/edit/main/",
   },
