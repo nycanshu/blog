@@ -14,6 +14,7 @@ type Props = {
   pubDatetime: string | Date;
   timezone?: string;
   modDatetime?: string | Date | null;
+  readingTime?: string;
 };
 
 const {
@@ -22,6 +23,7 @@ const {
   size = "sm",
   class: className = "",
   timezone: postTimezone,
+  readingTime,
 } = Astro.props;
 
 /* ========== Formatted Datetime ========== */
@@ -52,4 +54,12 @@ const date = datetime.format("D MMM, YYYY"); // e.g., '22 Mar, 2025'
     class:list={["text-sm", { "sm:text-base": size === "lg" }]}
     datetime={datetime.toISOString()}>{date}</time
   >
+  {readingTime && (
+    <>
+      <span aria-hidden="true" class="text-foreground/30">&middot;</span>
+      <span class:list={["text-sm text-foreground/50", { "sm:text-base": size === "lg" }]}>
+        {readingTime}
+      </span>
+    </>
+  )}
 </div>

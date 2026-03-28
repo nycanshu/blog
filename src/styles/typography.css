@@ -10,16 +10,19 @@
     }
 
     h2 {
-      @apply mt-14 mb-4 text-2xl sm:text-[1.7rem] font-bold tracking-tight text-foreground leading-snug;
-      @apply pb-2 border-b border-border/50;
+      @apply mt-14 mb-4 text-2xl sm:text-[1.7rem] font-bold tracking-tight leading-snug;
+      @apply text-foreground;
+      @apply pb-2 border-b border-border/50 dark:border-accent/20;
     }
 
     h3 {
-      @apply mt-10 mb-3 text-xl font-semibold text-foreground/90 leading-snug;
+      @apply mt-10 mb-3 text-xl font-semibold leading-snug;
+      @apply text-foreground/85 dark:text-accent/70;
     }
 
     h4 {
-      @apply mt-8 mb-2 text-lg font-semibold text-foreground/80;
+      @apply mt-8 mb-2 text-lg font-semibold;
+      @apply text-foreground/75 dark:text-foreground/60;
     }
 
     th {
