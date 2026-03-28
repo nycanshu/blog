@@ -6,11 +6,13 @@ import Footer from "@/components/Footer.astro";
 import Socials from "@/components/Socials.astro";
 import LinkButton from "@/components/LinkButton.astro";
 import Card from "@/components/Card.astro";
+import GridBackground from "@/components/GridBackground.astro";
 import getSortedPosts from "@/utils/getSortedPosts";
 import IconRss from "@/assets/icons/IconRss.svg";
 import IconArrowRight from "@/assets/icons/IconArrowRight.svg";
 import { SITE } from "@/config";
 import { SOCIALS } from "@/constants";
+import { getBase } from "@/utils/getBase";
 
 const posts = await getCollection("blog");
 
@@ -23,31 +25,34 @@ const recentPosts = sortedPosts.filter(({ data }) => !data.featured);
   <Header />
   <main id="main-content" data-layout="index">
     <!-- ===== HERO: The Portal ===== -->
-    <section id="hero" class="relative overflow-hidden min-h-[70vh] flex items-center justify-center">
-      <!-- Animated background orbs -->
+    <section id="hero" class="relative overflow-hidden min-h-[50vh] sm:min-h-[70vh] flex items-center justify-center">
+      <!-- Interactive grid background -->
+      <GridBackground />
+
+      <!-- Subtle glow accents behind the grid -->
       <div class="absolute inset-0 pointer-events-none" aria-hidden="true">
-        <div class="glow-orb absolute top-[15%] left-[10%] w-72 h-72 rounded-full bg-accent/10 blur-[100px]"></div>
-        <div class="glow-orb absolute bottom-[10%] right-[15%] w-96 h-96 rounded-full bg-accent/8 blur-[120px]" style="animation-delay: -2s;"></div>
-        <div class="glow-orb absolute top-[60%] left-[50%] w-48 h-48 rounded-full bg-accent/6 blur-[80px]" style="animation-delay: -4s;"></div>
+        <div class="glow-orb absolute top-[20%] left-[15%] w-64 h-64 sm:w-72 sm:h-72 rounded-full bg-accent/8 blur-[100px]"></div>
+        <div class="glow-orb absolute bottom-[15%] right-[10%] w-72 h-72 sm:w-96 sm:h-96 rounded-full bg-accent/6 blur-[120px]" style="animation-delay: -2s;"></div>
       </div>
 
-      <div class="relative z-10 app-layout text-center py-24 sm:py-32">
+      <div class="relative z-10 app-layout text-center py-16 sm:py-24 lg:py-32">
         <div class="reveal">
-          <h1 class="text-5xl sm:text-7xl font-bold tracking-tight leading-tight">
+          <h1 class="text-3xl sm:text-5xl lg:text-7xl font-bold tracking-tight leading-tight">
             <span class="text-foreground">hey, i'm </span>
             <span class="bg-gradient-to-r from-accent to-purple-400 bg-clip-text text-transparent">nycanshu</span><span class="text-accent">.</span>
           </h1>
         </div>
         <div class="reveal" style="transition-delay: 0.1s;">
-          <p class="mt-6 text-lg sm:text-xl text-foreground/70 max-w-2xl mx-auto leading-relaxed">
-            I write about the things I build, break, and learn —
-            <span class="text-foreground/90">Node.js</span>,
-            <span class="text-foreground/90">Ceph</span>,
-            <span class="text-foreground/90">Kubernetes</span>,
-            and the craft of open source software.
+          <p class="mt-4 sm:mt-6 text-base sm:text-lg lg:text-xl text-foreground/60 max-w-2xl mx-auto leading-relaxed">
+            Software engineer who builds things, breaks things, and writes about why they broke — solving problems that shouldn't be this hard.
           </p>
         </div>
-        <div class="reveal mt-8 flex items-center justify-center gap-4" style="transition-delay: 0.2s;">
+        <div class="reveal" style="transition-delay: 0.18s;">
+          <p class="mt-3 text-sm sm:text-base text-accent/70 max-w-xl mx-auto italic">
+            So you can skip the suffering and go straight to the fix.
+          </p>
+        </div>
+        <div class="reveal mt-6 sm:mt-8 flex items-center justify-center gap-4" style="transition-delay: 0.2s;">
           {
             SOCIALS.length > 0 && (
               <Socials />
@@ -55,7 +60,7 @@ const recentPosts = sortedPosts.filter(({ data }) => !data.featured);
           }
           <a
             target="_blank"
-            href="/rss.xml"
+            href={getBase("/rss.xml")}
             class="inline-flex items-center gap-1.5 text-foreground/50 hover:text-accent transition-colors duration-200"
             aria-label="rss feed"
             title="RSS Feed"
@@ -75,7 +80,7 @@ const recentPosts = sortedPosts.filter(({ data }) => !data.featured);
       featuredPosts.length > 0 && (
         <section
           id="featured"
-          class="app-layout pt-16 pb-8"
+          class="app-layout pt-12 sm:pt-16 pb-8"
         >
           <div class="reveal">
             <h2 class="text-xs font-semibold uppercase tracking-[0.2em] text-accent mb-8">
@@ -117,7 +122,7 @@ const recentPosts = sortedPosts.filter(({ data }) => !data.featured);
     }
 
     <div class="reveal app-layout my-12 text-center">
-      <LinkButton href="/posts/" class="inline-flex items-center gap-2 px-6 py-3 rounded-full glass text-foreground font-medium hover:text-accent transition-colors duration-200">
+      <LinkButton href={getBase("/posts/")} class="inline-flex items-center gap-2 px-6 py-3 rounded-full glass text-foreground font-medium hover:text-accent transition-colors duration-200">
         All Posts
         <IconArrowRight class="inline-block rtl:-rotate-180" />
       </LinkButton>
@@ -127,39 +132,11 @@ const recentPosts = sortedPosts.filter(({ data }) => !data.featured);
 </Layout>
 
 <script>
-  function initReveal() {
-    const reveals = document.querySelectorAll(".reveal");
-    if (!reveals.length) return;
-
-    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (prefersReducedMotion) {
-      reveals.forEach(el => el.classList.add("revealed"));
-      return;
-    }
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("revealed");
-            observer.unobserve(entry.target);
-          }
-        });
-      },
-      { threshold: 0.15 }
-    );
-
-    reveals.forEach(el => observer.observe(el));
-  }
-
-  // Run on initial load and view transitions
-  initReveal();
   document.addEventListener("astro:page-load", () => {
     const indexLayout = (document.querySelector("#main-content") as HTMLElement)
       ?.dataset?.layout;
     if (indexLayout) {
       sessionStorage.setItem("backUrl", "/");
     }
-    initReveal();
   });
 </script>

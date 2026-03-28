@@ -2,11 +2,12 @@
 import IconX from "@/assets/icons/IconX.svg";
 import IconMoon from "@/assets/icons/IconMoon.svg";
 import IconSearch from "@/assets/icons/IconSearch.svg";
-import IconArchive from "@/assets/icons/IconArchive.svg";
 import IconSunHigh from "@/assets/icons/IconSunHigh.svg";
 import IconMenuDeep from "@/assets/icons/IconMenuDeep.svg";
 import LinkButton from "./LinkButton.astro";
 import { SITE } from "@/config";
+import { NAV_ITEMS } from "@/config/nav";
+import { getBase } from "@/utils/getBase";
 
 const { pathname } = Astro.url;
 
@@ -14,9 +15,10 @@ const currentPath =
   pathname.endsWith("/") && pathname !== "/" ? pathname.slice(0, -1) : pathname;
 
 const isActive = (path: string) => {
+  const fullPath = getBase(path);
   const currentPathArray = currentPath.split("/").filter(p => p.trim());
-  const pathArray = path.split("/").filter(p => p.trim());
-  return currentPath === path || currentPathArray[0] === pathArray[0];
+  const pathArray = fullPath.split("/").filter(p => p.trim());
+  return currentPath === fullPath || currentPathArray[0] === pathArray[0];
 };
 ---
 
@@ -28,115 +30,127 @@ const isActive = (path: string) => {
   Skip to content
 </a>
 
-<header
-  class="sticky top-0 z-40 w-full"
->
+<header class="sticky top-0 z-40 w-full">
   <div class="glass">
     <div
       id="top-nav-wrap"
-      class:list={[
-        "app-layout py-4",
-        "relative flex items-center justify-between",
-      ]}
+      class="app-layout py-3 relative flex items-center justify-between"
     >
+      <!-- Logo -->
       <a
-        href="/"
-        class="text-xl font-bold tracking-tight text-foreground hover:text-accent transition-colors duration-200"
+        href={getBase("/")}
+        class="text-lg font-bold tracking-tight text-foreground hover:text-accent transition-colors duration-200"
       >
         {SITE.title}<span class="text-accent">.</span>
       </a>
-      <nav
-        id="nav-menu"
-        class="flex items-center"
-      >
-        <button
-          id="menu-btn"
-          class="focus-outline p-2 sm:hidden"
-          aria-label="Open Menu"
-          aria-expanded="false"
-          aria-controls="menu-items"
-        >
-          <IconX id="close-icon" class="hidden" />
-          <IconMenuDeep id="menu-icon" />
-        </button>
-        <ul
-          id="menu-items"
+
+      <!-- Desktop nav -->
+      <nav class="hidden sm:flex items-center gap-0.5">
+        {NAV_ITEMS.map(({ label, path }) => (
+          <a
+            href={getBase(path)}
+            class:list={[
+              "px-3 py-1.5 text-sm font-medium rounded-lg transition-colors duration-200",
+              "hover:text-accent hover:bg-accent/5",
+              { "text-accent bg-accent/10": isActive(path) },
+              { "text-foreground/70": !isActive(path) },
+            ]}
+          >
+            {label}
+          </a>
+        ))}
+
+        <!-- Divider -->
+        <div class="w-px h-4 bg-border mx-1" aria-hidden="true"></div>
+
+        <!-- Search -->
+        <LinkButton
+          href={getBase("/search")}
           class:list={[
-            "absolute top-full left-0 right-0 glass mt-0 p-4",
-            "flex flex-col items-center gap-1",
-            "[&>li>a]:block [&>li>a]:px-4 [&>li>a]:py-2.5 [&>li>a]:text-center [&>li>a]:font-medium [&>li>a]:rounded-lg [&>li>a]:transition-colors [&>li>a]:duration-200 [&>li>a]:hover:text-accent [&>li>a]:hover:bg-accent/5",
-            "hidden",
-            "sm:static sm:flex sm:flex-row sm:p-0 sm:bg-transparent sm:backdrop-blur-none sm:border-none sm:gap-1",
+            "focus-outline flex p-2 rounded-lg transition-colors duration-200 hover:text-accent hover:bg-accent/5",
+            { "text-accent": isActive("/search") },
+            { "text-foreground/50": !isActive("/search") },
           ]}
+          title="Search"
+          aria-label="search"
         >
-          <li>
-            <a href="/posts" class:list={{ "active-nav": isActive("/posts") }}>
-              Posts
-            </a>
-          </li>
-          <li>
-            <a href="/tags" class:list={{ "active-nav": isActive("/tags") }}>
-              Tags
-            </a>
-          </li>
-          <li>
-            <a href="/about" class:list={{ "active-nav": isActive("/about") }}>
-              About
-            </a>
-          </li>
-          {
-            SITE.showArchives && (
-              <li>
-                <LinkButton
-                  href="/archives"
-                  class:list={[
-                    "focus-outline flex justify-center items-center p-2.5 sm:p-2 rounded-lg transition-colors duration-200 hover:text-accent hover:bg-accent/5",
-                    {
-                      "active-nav [&>svg]:stroke-accent": isActive("/archives"),
-                    },
-                  ]}
-                  title="Archives"
-                  aria-label="archives"
-                >
-                  <IconArchive class="hidden sm:inline-block" />
-                  <span class="sm:sr-only">Archives</span>
-                </LinkButton>
-              </li>
-            )
-          }
-          <li class="flex items-center">
-            <LinkButton
-              href="/search"
-              class:list={[
-                "focus-outline flex p-2.5 sm:p-2 rounded-lg transition-colors duration-200 hover:text-accent hover:bg-accent/5",
-                { "[&>svg]:stroke-accent": isActive("/search") },
-              ]}
-              title="Search"
-              aria-label="search"
-            >
-              <IconSearch />
-              <span class="sr-only">Search</span>
-            </LinkButton>
-          </li>
-          {
-            SITE.lightAndDarkMode && (
-              <li class="flex items-center">
-                <button
-                  id="theme-btn"
-                  class="focus-outline relative size-10 p-2 sm:size-8 rounded-lg transition-colors duration-200 hover:text-accent hover:bg-accent/5"
-                  title="Toggles light & dark"
-                  aria-label="auto"
-                  aria-live="polite"
-                >
-                  <IconMoon class="absolute top-[50%] left-[50%] -translate-[50%] scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />
-                  <IconSunHigh class="absolute top-[50%] left-[50%] -translate-[50%] scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" />
-                </button>
-              </li>
-            )
-          }
-        </ul>
+          <IconSearch class="size-[18px]" />
+        </LinkButton>
+
+        <!-- Theme toggle -->
+        {SITE.lightAndDarkMode && (
+          <button
+            id="theme-btn"
+            class="focus-outline relative size-8 p-2 rounded-lg transition-colors duration-200 hover:text-accent hover:bg-accent/5 text-foreground/50"
+            title="Toggles light & dark"
+            aria-label="auto"
+            aria-live="polite"
+          >
+            <IconMoon class="absolute top-[50%] left-[50%] -translate-[50%] scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />
+            <IconSunHigh class="absolute top-[50%] left-[50%] -translate-[50%] scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" />
+          </button>
+        )}
       </nav>
+
+      <!-- Mobile menu button -->
+      <button
+        id="menu-btn"
+        class="focus-outline p-2 sm:hidden text-foreground/70"
+        aria-label="Open Menu"
+        aria-expanded="false"
+        aria-controls="menu-items"
+      >
+        <IconX id="close-icon" class="hidden" />
+        <IconMenuDeep id="menu-icon" />
+      </button>
     </div>
+
+    <!-- Mobile dropdown -->
+    <ul
+      id="menu-items"
+      class:list={[
+        "hidden sm:hidden",
+        "app-layout pb-4 flex flex-col gap-1",
+      ]}
+    >
+      {NAV_ITEMS.map(({ label, path }) => (
+        <li>
+          <a
+            href={getBase(path)}
+            class:list={[
+              "block px-3 py-2.5 text-sm font-medium rounded-lg transition-colors duration-200",
+              "hover:text-accent hover:bg-accent/5",
+              { "text-accent bg-accent/10": isActive(path) },
+              { "text-foreground/70": !isActive(path) },
+            ]}
+          >
+            {label}
+          </a>
+        </li>
+      ))}
+      <li class="flex items-center gap-1 px-1 pt-2 border-t border-border">
+        <LinkButton
+          href={getBase("/search")}
+          class="focus-outline flex p-2.5 rounded-lg transition-colors duration-200 hover:text-accent hover:bg-accent/5 text-foreground/50"
+          title="Search"
+          aria-label="search"
+        >
+          <IconSearch class="size-[18px]" />
+        </LinkButton>
+        {SITE.lightAndDarkMode && (
+          <button
+            id="theme-btn-mobile"
+            class="focus-outline relative size-10 p-2.5 rounded-lg transition-colors duration-200 hover:text-accent hover:bg-accent/5 text-foreground/50"
+            title="Toggles light & dark"
+            aria-label="auto"
+            aria-live="polite"
+          >
+            <IconMoon class="absolute top-[50%] left-[50%] -translate-[50%] scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />
+            <IconSunHigh class="absolute top-[50%] left-[50%] -translate-[50%] scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" />
+          </button>
+        )}
+      </li>
+    </ul>
   </div>
 </header>
 
