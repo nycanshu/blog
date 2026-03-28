@@ -2,6 +2,7 @@
 /**
  * Interactive grid background with dots + lines.
  * Dots near the cursor glow with accent color.
+ * Uses lerping for smooth, floating mouse tracking.
  * Respects prefers-reduced-motion and theme changes.
  */
 ---
@@ -18,14 +19,26 @@
 
     const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-    // Grid config
     const CELL_SIZE = 40;
-    const DOT_RADIUS = 1.2;
-    const HOVER_RADIUS = 150;
+    const DOT_RADIUS = 1;
+    const HOVER_RADIUS = 180;
+    const LERP_SPEED = 0.08; // lower = smoother/slower trailing
 
-    let mouseX = -1000;
-    let mouseY = -1000;
+    // Real mouse position and smoothed (lerped) position
+    let rawMouseX = -1000;
+    let rawMouseY = -1000;
+    let smoothX = -1000;
+    let smoothY = -1000;
     let animationId: number;
+
+    function lerp(a: number, b: number, t: number) {
+      return a + (b - a) * t;
+    }
+
+    // Smooth sine-based easing — feels organic, not harsh
+    function easeOutSine(x: number) {
+      return Math.sin((x * Math.PI) / 2);
+    }
 
     function getColors() {
       const isDark = document.documentElement.getAttribute("data-theme") === "dark"
@@ -33,9 +46,9 @@
           && window.matchMedia("(prefers-color-scheme: dark)").matches);
 
       return {
-        line: isDark ? "rgba(30, 42, 58, 0.35)" : "rgba(226, 224, 240, 0.5)",
-        dot: isDark ? "rgba(30, 42, 58, 0.5)" : "rgba(226, 224, 240, 0.6)",
-        glow: isDark ? "167, 139, 250" : "124, 91, 240", // accent RGB
+        line: isDark ? "rgba(30, 42, 58, 0.25)" : "rgba(226, 224, 240, 0.4)",
+        dot: isDark ? "rgba(30, 42, 58, 0.4)" : "rgba(226, 224, 240, 0.5)",
+        glow: isDark ? "167, 139, 250" : "124, 91, 240",
       };
     }
 
@@ -57,23 +70,24 @@
       const h = canvas.height / (window.devicePixelRatio || 1);
       ctx!.clearRect(0, 0, w, h);
 
+      // Lerp mouse position for smooth trailing
+      smoothX = lerp(smoothX, rawMouseX, LERP_SPEED);
+      smoothY = lerp(smoothY, rawMouseY, LERP_SPEED);
+
       const cols = Math.ceil(w / CELL_SIZE) + 1;
       const rows = Math.ceil(h / CELL_SIZE) + 1;
       const offsetX = (w % CELL_SIZE) / 2;
       const offsetY = (h % CELL_SIZE) / 2;
 
-      // Draw grid lines
+      // Draw grid lines with subtle hover glow
       ctx!.lineWidth = 0.5;
       for (let i = 0; i <= cols; i++) {
         const x = offsetX + i * CELL_SIZE;
-        // Calculate glow for this vertical line
-        const distToMouse = Math.abs(x - mouseX);
-        const glowIntensity = !prefersReducedMotion && distToMouse < HOVER_RADIUS
-          ? (1 - distToMouse / HOVER_RADIUS) * 0.25
-          : 0;
+        const dist = Math.abs(x - smoothX);
 
-        if (glowIntensity > 0) {
-          ctx!.strokeStyle = `rgba(${colors.glow}, ${glowIntensity})`;
+        if (!prefersReducedMotion && dist < HOVER_RADIUS) {
+          const t = easeOutSine(1 - dist / HOVER_RADIUS);
+          ctx!.strokeStyle = `rgba(${colors.glow}, ${t * 0.15})`;
         } else {
           ctx!.strokeStyle = colors.line;
         }
@@ -85,13 +99,11 @@
 
       for (let j = 0; j <= rows; j++) {
         const y = offsetY + j * CELL_SIZE;
-        const distToMouse = Math.abs(y - mouseY);
-        const glowIntensity = !prefersReducedMotion && distToMouse < HOVER_RADIUS
-          ? (1 - distToMouse / HOVER_RADIUS) * 0.25
-          : 0;
+        const dist = Math.abs(y - smoothY);
 
-        if (glowIntensity > 0) {
-          ctx!.strokeStyle = `rgba(${colors.glow}, ${glowIntensity})`;
+        if (!prefersReducedMotion && dist < HOVER_RADIUS) {
+          const t = easeOutSine(1 - dist / HOVER_RADIUS);
+          ctx!.strokeStyle = `rgba(${colors.glow}, ${t * 0.15})`;
         } else {
           ctx!.strokeStyle = colors.line;
         }
@@ -101,24 +113,23 @@
         ctx!.stroke();
       }
 
-      // Draw dot intersections
+      // Draw dot intersections with smooth glow
       for (let i = 0; i <= cols; i++) {
         for (let j = 0; j <= rows; j++) {
           const x = offsetX + i * CELL_SIZE;
           const y = offsetY + j * CELL_SIZE;
 
-          const dx = x - mouseX;
-          const dy = y - mouseY;
+          const dx = x - smoothX;
+          const dy = y - smoothY;
           const dist = Math.sqrt(dx * dx + dy * dy);
 
           let radius = DOT_RADIUS;
           let fillStyle = colors.dot;
 
           if (!prefersReducedMotion && dist < HOVER_RADIUS) {
-            const intensity = 1 - dist / HOVER_RADIUS;
-            const easedIntensity = intensity * intensity; // quadratic falloff
-            radius = DOT_RADIUS + easedIntensity * 2.5;
-            const alpha = 0.3 + easedIntensity * 0.7;
+            const t = easeOutSine(1 - dist / HOVER_RADIUS);
+            radius = DOT_RADIUS + t * 3;
+            const alpha = 0.15 + t * 0.85;
             fillStyle = `rgba(${colors.glow}, ${alpha})`;
           }
 
@@ -132,13 +143,14 @@
 
     function onMouseMove(e: MouseEvent) {
       const rect = canvas.getBoundingClientRect();
-      mouseX = e.clientX - rect.left;
-      mouseY = e.clientY - rect.top;
+      rawMouseX = e.clientX - rect.left;
+      rawMouseY = e.clientY - rect.top;
     }
 
     function onMouseLeave() {
-      mouseX = -1000;
-      mouseY = -1000;
+      // Lerp will smoothly drift away instead of snapping
+      rawMouseX = -1000;
+      rawMouseY = -1000;
     }
 
     function animate() {
@@ -150,10 +162,8 @@
     resize();
 
     if (prefersReducedMotion) {
-      // Static render only — no animation loop
       draw();
     } else {
-      // Enable mouse tracking on the hero section (parent)
       const parent = canvas.parentElement;
       if (parent) {
         parent.style.pointerEvents = "auto";
@@ -163,7 +173,6 @@
       animate();
     }
 
-    // Resize handler
     const resizeObserver = new ResizeObserver(() => {
       resize();
       if (prefersReducedMotion) draw();
@@ -172,7 +181,6 @@
       resizeObserver.observe(canvas.parentElement);
     }
 
-    // Theme change handler
     const themeObserver = new MutationObserver(() => {
       colors = getColors();
       if (prefersReducedMotion) draw();
@@ -182,7 +190,6 @@
       attributeFilter: ["data-theme"],
     });
 
-    // Cleanup on page navigation
     document.addEventListener("astro:before-swap", () => {
       cancelAnimationFrame(animationId);
       resizeObserver.disconnect();
@@ -195,7 +202,6 @@
     }, { once: true });
   }
 
-  // Init on load and view transitions
   initGrid();
   document.addEventListener("astro:page-load", initGrid);
 </script>

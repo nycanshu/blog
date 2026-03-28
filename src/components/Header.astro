@@ -6,6 +6,7 @@ import IconSunHigh from "@/assets/icons/IconSunHigh.svg";
 import IconMenuDeep from "@/assets/icons/IconMenuDeep.svg";
 import LinkButton from "./LinkButton.astro";
 import { SITE } from "@/config";
+import { NAV_ITEMS } from "@/config/nav";
 import { getBase } from "@/utils/getBase";
 
 const { pathname } = Astro.url;
@@ -19,13 +20,6 @@ const isActive = (path: string) => {
   const pathArray = fullPath.split("/").filter(p => p.trim());
   return currentPath === fullPath || currentPathArray[0] === pathArray[0];
 };
-
-const navItems = [
-  { label: "Posts", path: "/posts" },
-  { label: "Projects", path: "/projects" },
-  { label: "Tags", path: "/tags" },
-  { label: "About", path: "/about" },
-];
 ---
 
 <a
@@ -52,7 +46,7 @@ const navItems = [
 
       <!-- Desktop nav -->
       <nav class="hidden sm:flex items-center gap-0.5">
-        {navItems.map(({ label, path }) => (
+        {NAV_ITEMS.map(({ label, path }) => (
           <a
             href={getBase(path)}
             class:list={[
@@ -119,7 +113,7 @@ const navItems = [
         "app-layout pb-4 flex flex-col gap-1",
       ]}
     >
-      {navItems.map(({ label, path }) => (
+      {NAV_ITEMS.map(({ label, path }) => (
         <li>
           <a
             href={getBase(path)}

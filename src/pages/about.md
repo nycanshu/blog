@@ -20,11 +20,3 @@ Some things I've shipped:
 This is my personal space to write about what I'm building, learning, and thinking about. No single topic — whatever's interesting.
 
 The blog itself is built with Astro and a custom theme called "The Void." It's also available as a [template](https://github.com/nycanshu/blog) with attribution.
-
-## Elsewhere
-
-- [GitHub](https://github.com/nycanshu)
-- [LinkedIn](https://www.linkedin.com/in/okay-anshu/)
-- [npm](https://www.npmjs.com/~nycanshu)
-- [dev.to](https://dev.to/okay_anshu)
-- [SDK Docs](https://radosgw-admin.nycanshu.dev)
