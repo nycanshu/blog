@@ -1,9 +1,8 @@
 ---
 /**
  * Interactive grid background with dots + lines.
- * Dots near the cursor glow with accent color.
- * Uses lerping for smooth, floating mouse tracking.
- * Respects prefers-reduced-motion and theme changes.
+ * Uses spring physics for organic hover feel.
+ * Supports touch on mobile. Respects prefers-reduced-motion.
  */
 ---
 
@@ -18,41 +17,69 @@
     if (!ctx) return;
 
     const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const isMobile = window.matchMedia("(max-width: 768px)").matches;
 
-    const CELL_SIZE = 40;
-    const DOT_RADIUS = 1;
-    const HOVER_RADIUS = 180;
-    const LERP_SPEED = 0.08; // lower = smoother/slower trailing
+    const CELL_SIZE = isMobile ? 50 : 44;
+    const DOT_RADIUS = 0.6;
+    const HOVER_RADIUS = isMobile ? 80 : 120;
+    const MOUSE_SMOOTHING = 0.18;
 
-    // Real mouse position and smoothed (lerped) position
+    // Spring physics config
+    const STIFFNESS = 0.015;
+    const DAMPING = 0.85;
+    const MAX_DISPLACEMENT = 12;
+
     let rawMouseX = -1000;
     let rawMouseY = -1000;
-    let smoothX = -1000;
-    let smoothY = -1000;
+    let smoothMouseX = -1000;
+    let smoothMouseY = -1000;
     let animationId: number;
 
-    function lerp(a: number, b: number, t: number) {
-      return a + (b - a) * t;
-    }
+    type Dot = {
+      baseX: number; baseY: number;
+      x: number; y: number;
+      vx: number; vy: number;
+      radius: number; opacity: number;
+    };
 
-    // Smooth sine-based easing — feels organic, not harsh
-    function easeOutSine(x: number) {
-      return Math.sin((x * Math.PI) / 2);
-    }
+    let dots: Dot[] = [];
+    let cols = 0;
+    let rows = 0;
 
     function getColors() {
       const isDark = document.documentElement.getAttribute("data-theme") === "dark"
         || (!document.documentElement.getAttribute("data-theme")
           && window.matchMedia("(prefers-color-scheme: dark)").matches);
-
       return {
-        line: isDark ? "rgba(30, 42, 58, 0.25)" : "rgba(226, 224, 240, 0.4)",
-        dot: isDark ? "rgba(30, 42, 58, 0.4)" : "rgba(226, 224, 240, 0.5)",
+        line: isDark ? "rgba(30, 42, 58, 0.18)" : "rgba(226, 224, 240, 0.3)",
+        dot: isDark ? "rgba(30, 42, 58, 0.2)" : "rgba(226, 224, 240, 0.3)",
         glow: isDark ? "167, 139, 250" : "124, 91, 240",
       };
     }
 
     let colors = getColors();
+
+    function buildGrid(w: number, h: number) {
+      dots = [];
+      cols = Math.ceil(w / CELL_SIZE) + 1;
+      rows = Math.ceil(h / CELL_SIZE) + 1;
+      const offsetX = (w % CELL_SIZE) / 2;
+      const offsetY = (h % CELL_SIZE) / 2;
+
+      for (let i = 0; i <= cols; i++) {
+        for (let j = 0; j <= rows; j++) {
+          const x = offsetX + i * CELL_SIZE;
+          const y = offsetY + j * CELL_SIZE;
+          dots.push({
+            baseX: x, baseY: y,
+            x, y,
+            vx: 0, vy: 0,
+            radius: DOT_RADIUS,
+            opacity: 0,
+          });
+        }
+      }
+    }
 
     function resize() {
       const rect = canvas.parentElement?.getBoundingClientRect();
@@ -63,6 +90,51 @@
       canvas.style.width = `${rect.width}px`;
       canvas.style.height = `${rect.height}px`;
       ctx!.setTransform(dpr, 0, 0, dpr, 0, 0);
+      buildGrid(rect.width, rect.height);
+    }
+
+    function update() {
+      // Smooth mouse tracking
+      smoothMouseX += (rawMouseX - smoothMouseX) * MOUSE_SMOOTHING;
+      smoothMouseY += (rawMouseY - smoothMouseY) * MOUSE_SMOOTHING;
+
+      for (const dot of dots) {
+        const dx = dot.baseX - smoothMouseX;
+        const dy = dot.baseY - smoothMouseY;
+        const distSq = dx * dx + dy * dy;
+        const radiusSq = HOVER_RADIUS * HOVER_RADIUS;
+
+        // Target is always base position
+        let targetX = dot.baseX;
+        let targetY = dot.baseY;
+        let targetOpacity = 0;
+        let targetRadius = DOT_RADIUS;
+
+        if (distSq < radiusSq) {
+          const dist = Math.sqrt(distSq);
+          const force = 1 - (distSq / radiusSq); // quadratic falloff
+          const angle = Math.atan2(dy, dx);
+          const displacement = force * MAX_DISPLACEMENT;
+
+          // Push dots away from cursor
+          targetX = dot.baseX + Math.cos(angle) * displacement;
+          targetY = dot.baseY + Math.sin(angle) * displacement;
+          targetOpacity = force * 0.6;
+          targetRadius = DOT_RADIUS + force * 1.5;
+        }
+
+        // Spring physics toward target
+        const forceX = (targetX - dot.x) * STIFFNESS;
+        const forceY = (targetY - dot.y) * STIFFNESS;
+        dot.vx = (dot.vx + forceX) * DAMPING;
+        dot.vy = (dot.vy + forceY) * DAMPING;
+        dot.x += dot.vx;
+        dot.y += dot.vy;
+
+        // Smooth opacity and radius
+        dot.opacity += (targetOpacity - dot.opacity) * 0.1;
+        dot.radius += (targetRadius - dot.radius) * 0.1;
+      }
     }
 
     function draw() {
@@ -70,105 +142,88 @@
       const h = canvas.height / (window.devicePixelRatio || 1);
       ctx!.clearRect(0, 0, w, h);
 
-      // Lerp mouse position for smooth trailing
-      smoothX = lerp(smoothX, rawMouseX, LERP_SPEED);
-      smoothY = lerp(smoothY, rawMouseY, LERP_SPEED);
-
-      const cols = Math.ceil(w / CELL_SIZE) + 1;
-      const rows = Math.ceil(h / CELL_SIZE) + 1;
+      // Draw grid lines (static, no spring on lines)
+      ctx!.lineWidth = 0.5;
+      ctx!.strokeStyle = colors.line;
       const offsetX = (w % CELL_SIZE) / 2;
       const offsetY = (h % CELL_SIZE) / 2;
 
-      // Draw grid lines with subtle hover glow
-      ctx!.lineWidth = 0.5;
+      ctx!.beginPath();
       for (let i = 0; i <= cols; i++) {
         const x = offsetX + i * CELL_SIZE;
-        const dist = Math.abs(x - smoothX);
-
-        if (!prefersReducedMotion && dist < HOVER_RADIUS) {
-          const t = easeOutSine(1 - dist / HOVER_RADIUS);
-          ctx!.strokeStyle = `rgba(${colors.glow}, ${t * 0.15})`;
-        } else {
-          ctx!.strokeStyle = colors.line;
-        }
-        ctx!.beginPath();
         ctx!.moveTo(x, 0);
         ctx!.lineTo(x, h);
-        ctx!.stroke();
       }
-
       for (let j = 0; j <= rows; j++) {
         const y = offsetY + j * CELL_SIZE;
-        const dist = Math.abs(y - smoothY);
-
-        if (!prefersReducedMotion && dist < HOVER_RADIUS) {
-          const t = easeOutSine(1 - dist / HOVER_RADIUS);
-          ctx!.strokeStyle = `rgba(${colors.glow}, ${t * 0.15})`;
-        } else {
-          ctx!.strokeStyle = colors.line;
-        }
-        ctx!.beginPath();
         ctx!.moveTo(0, y);
         ctx!.lineTo(w, y);
-        ctx!.stroke();
       }
+      ctx!.stroke();
 
-      // Draw dot intersections with smooth glow
-      for (let i = 0; i <= cols; i++) {
-        for (let j = 0; j <= rows; j++) {
-          const x = offsetX + i * CELL_SIZE;
-          const y = offsetY + j * CELL_SIZE;
+      // Draw dots — batch by opacity for performance
+      // Base dots (static, one batch)
+      ctx!.beginPath();
+      ctx!.fillStyle = colors.dot;
+      for (const dot of dots) {
+        if (dot.opacity < 0.01) {
+          ctx!.moveTo(dot.baseX + DOT_RADIUS, dot.baseY);
+          ctx!.arc(dot.baseX, dot.baseY, DOT_RADIUS, 0, Math.PI * 2);
+        }
+      }
+      ctx!.fill();
 
-          const dx = x - smoothX;
-          const dy = y - smoothY;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-
-          let radius = DOT_RADIUS;
-          let fillStyle = colors.dot;
-
-          if (!prefersReducedMotion && dist < HOVER_RADIUS) {
-            const t = easeOutSine(1 - dist / HOVER_RADIUS);
-            radius = DOT_RADIUS + t * 3;
-            const alpha = 0.15 + t * 0.85;
-            fillStyle = `rgba(${colors.glow}, ${alpha})`;
-          }
-
+      // Glowing dots (spring-displaced, drawn individually)
+      for (const dot of dots) {
+        if (dot.opacity >= 0.01) {
           ctx!.beginPath();
-          ctx!.arc(x, y, radius, 0, Math.PI * 2);
-          ctx!.fillStyle = fillStyle;
+          ctx!.fillStyle = `rgba(${colors.glow}, ${dot.opacity})`;
+          ctx!.arc(dot.x, dot.y, dot.radius, 0, Math.PI * 2);
           ctx!.fill();
         }
       }
     }
 
-    function onMouseMove(e: MouseEvent) {
-      const rect = canvas.getBoundingClientRect();
-      rawMouseX = e.clientX - rect.left;
-      rawMouseY = e.clientY - rect.top;
-    }
-
-    function onMouseLeave() {
-      // Lerp will smoothly drift away instead of snapping
-      rawMouseX = -1000;
-      rawMouseY = -1000;
-    }
-
     function animate() {
+      update();
       draw();
       animationId = requestAnimationFrame(animate);
+    }
+
+    // Pointer handling (works for both mouse and touch)
+    function onPointerMove(x: number, y: number) {
+      const rect = canvas.getBoundingClientRect();
+      rawMouseX = x - rect.left;
+      rawMouseY = y - rect.top;
+    }
+
+    function onPointerLeave() {
+      rawMouseX = -1000;
+      rawMouseY = -1000;
     }
 
     // Setup
     resize();
 
     if (prefersReducedMotion) {
-      draw();
+      draw(); // static grid only
     } else {
       const parent = canvas.parentElement;
       if (parent) {
         parent.style.pointerEvents = "auto";
-        parent.addEventListener("mousemove", onMouseMove);
-        parent.addEventListener("mouseleave", onMouseLeave);
+
+        // Mouse events
+        parent.addEventListener("mousemove", (e) => onPointerMove(e.clientX, e.clientY));
+        parent.addEventListener("mouseleave", onPointerLeave);
+
+        // Touch events (mobile)
+        parent.addEventListener("touchstart", (e) => {
+          onPointerMove(e.touches[0].clientX, e.touches[0].clientY);
+        }, { passive: true });
+        parent.addEventListener("touchmove", (e) => {
+          onPointerMove(e.touches[0].clientX, e.touches[0].clientY);
+        }, { passive: true });
+        parent.addEventListener("touchend", onPointerLeave, { passive: true });
       }
       animate();
     }
@@ -177,28 +232,20 @@
       resize();
       if (prefersReducedMotion) draw();
     });
-    if (canvas.parentElement) {
-      resizeObserver.observe(canvas.parentElement);
-    }
+    if (canvas.parentElement) resizeObserver.observe(canvas.parentElement);
 
     const themeObserver = new MutationObserver(() => {
       colors = getColors();
       if (prefersReducedMotion) draw();
     });
     themeObserver.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ["data-theme"],
+      attributes: true, attributeFilter: ["data-theme"],
     });
 
     document.addEventListener("astro:before-swap", () => {
       cancelAnimationFrame(animationId);
       resizeObserver.disconnect();
       themeObserver.disconnect();
-      const parent = canvas.parentElement;
-      if (parent) {
-        parent.removeEventListener("mousemove", onMouseMove);
-        parent.removeEventListener("mouseleave", onMouseLeave);
-      }
     }, { once: true });
   }
 
