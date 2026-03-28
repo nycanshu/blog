@@ -1,6 +1,7 @@
 MIT License
 
-Copyright (c) 2023 Sat Naing
+Copyright (c) 2023 Sat Naing (AstroPaper base theme)
+Copyright (c) 2026 nycanshu (Custom "The Void" theme, design, and modifications)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -11,6 +12,10 @@ furnished to do so, subject to the following conditions:
 
 The above copyright notice and this permission notice shall be included in all
 copies or substantial portions of the Software.
+
+If you use the custom "The Void" theme design, color system, or UI components
+from this repository, you must provide visible attribution to nycanshu
+(https://github.com/nycanshu) in your project's README or website footer.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
