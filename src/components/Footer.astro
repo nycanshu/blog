@@ -1,0 +1,27 @@
+---
+import type { HTMLAttributes } from "astro/types";
+import Socials from "./Socials.astro";
+
+const currentYear = new Date().getFullYear();
+
+type Props = {
+  noMarginTop?: boolean;
+} & HTMLAttributes<"footer">;
+
+const { noMarginTop = false, class: className, ...attrs } = Astro.props;
+---
+
+<footer
+  class:list={["app-layout", { "mt-auto": !noMarginTop }, className]}
+  {...attrs}
+>
+  <!-- Gradient separator -->
+  <div class="h-px bg-gradient-to-r from-transparent via-accent/30 to-transparent" aria-hidden="true"></div>
+
+  <div class="py-8 flex flex-col items-center gap-4 sm:flex-row-reverse sm:justify-between">
+    <Socials />
+    <p class="text-sm text-foreground/40">
+      &copy; {currentYear} nycanshu
+    </p>
+  </div>
+</footer>

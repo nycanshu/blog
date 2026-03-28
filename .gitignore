@@ -1,0 +1,31 @@
+# Claude
+CLAUDE.md
+
+# Dependencies
+node_modules
+
+# Build output
+dist
+.astro
+
+# Pagefind (generated at build time)
+public/pagefind
+
+# Environment
+.env
+.env.*
+
+# OS
+.DS_Store
+
+# IDE
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Logs
+*.log

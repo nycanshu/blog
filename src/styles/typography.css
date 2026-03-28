@@ -1,0 +1,125 @@
+@plugin "@tailwindcss/typography";
+
+@layer base {
+  .app-prose {
+    @apply prose prose-lg;
+
+    h1,
+    h2,
+    h3,
+    h4,
+    th {
+      @apply mb-3 text-foreground;
+    }
+
+    h2 {
+      @apply mt-12 text-xl font-semibold tracking-tight;
+    }
+
+    h3 {
+      @apply mt-8 italic;
+    }
+
+    p,
+    strong,
+    ol,
+    ul,
+    figcaption,
+    table,
+    code {
+      @apply text-foreground;
+    }
+
+    p {
+      @apply leading-[1.8];
+    }
+
+    a {
+      @apply wrap-break-word text-accent decoration-accent/30 decoration-1 underline-offset-4 hover:decoration-accent focus-visible:no-underline transition-colors duration-200;
+    }
+
+    ul {
+      @apply overflow-x-clip;
+    }
+
+    li {
+      @apply marker:text-accent/60;
+    }
+
+    hr {
+      @apply border-border;
+    }
+
+    img {
+      @apply mx-auto rounded-lg border border-border;
+    }
+
+    figcaption {
+      @apply opacity-60 text-sm;
+    }
+
+    table {
+      th,
+      td {
+        @apply border border-border p-2;
+      }
+
+      th {
+        @apply py-1.5 bg-muted/50;
+      }
+
+      code {
+        @apply break-all sm:break-normal;
+      }
+    }
+
+    code {
+      @apply rounded-md bg-muted/75 px-1.5 py-0.5 wrap-break-word text-sm text-foreground before:content-none after:content-none;
+    }
+
+    .astro-code code {
+      @apply flex-[1_0_100%] bg-inherit p-0;
+    }
+
+    blockquote {
+      @apply border-s-2 border-s-accent/50 wrap-break-word opacity-80 italic;
+    }
+
+    details {
+      @apply inline-block cursor-pointer text-foreground select-none [&_p]:hidden [&_ul]:my-0!;
+    }
+
+    summary {
+      @apply focus-visible:no-underline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent focus-visible:outline-dashed;
+    }
+
+    pre {
+      @apply rounded-xl border border-border;
+      @apply focus-visible:border-transparent focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-dashed;
+    }
+  }
+
+  /* ===== Code Blocks & Syntax Highlighting ===== */
+  .astro-code {
+    @apply flex rounded-xl border border-border bg-(--shiki-light-bg) text-(--shiki-light) outline-border [&_span]:text-(--shiki-light);
+  }
+
+  html[data-theme="dark"] .astro-code {
+    @apply bg-(--shiki-dark-bg) text-(--shiki-dark) [&_span]:text-(--shiki-dark);
+  }
+
+  .astro-code {
+    .line.diff.add {
+      @apply relative inline-block w-full bg-green-400/15 before:absolute before:-left-3 before:text-green-500 before:content-['+'];
+    }
+    .line.diff.remove {
+      @apply relative inline-block w-full bg-red-500/15 before:absolute before:-left-3 before:text-red-500 before:content-['-'];
+    }
+    .line.highlighted {
+      @apply inline-block w-full bg-accent/10;
+    }
+    .highlighted-word {
+      @apply rounded-sm border border-accent/30 px-0.5 py-px bg-accent/10;
+    }
+  }
+}
