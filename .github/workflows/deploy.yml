@@ -17,6 +17,11 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      SITE_URL: ${{ vars.SITE_URL }}
+      SITE_BASE: ${{ vars.SITE_BASE }}
+      PUBLIC_GA_ID: ${{ vars.PUBLIC_GA_ID }}
+      PUBLIC_GOOGLE_SITE_VERIFICATION: ${{ vars.PUBLIC_GOOGLE_SITE_VERIFICATION }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4

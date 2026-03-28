@@ -1,7 +1,7 @@
 ---
 import { Font } from "astro:assets";
 import { ClientRouter } from "astro:transitions";
-import { PUBLIC_GOOGLE_SITE_VERIFICATION } from "astro:env/client";
+import { PUBLIC_GOOGLE_SITE_VERIFICATION, PUBLIC_GA_ID } from "astro:env/client";
 import { SITE } from "@/config";
 import "@/styles/global.css";
 
@@ -123,14 +123,20 @@ const structuredData = {
 
     <meta name="theme-color" content="#0c1220" />
 
-    <!-- Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-YLT2252FWN" is:inline></script>
-    <script is:inline>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-YLT2252FWN');
-    </script>
+    {/* Google Analytics — only loads if PUBLIC_GA_ID is set */}
+    {
+      PUBLIC_GA_ID && (
+        <>
+          <script async src={`https://www.googletagmanager.com/gtag/js?id=${PUBLIC_GA_ID}`} is:inline></script>
+          <script is:inline define:vars={{ gaId: PUBLIC_GA_ID }}>
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', gaId);
+          </script>
+        </>
+      )
+    }
 
     {
       // If PUBLIC_GOOGLE_SITE_VERIFICATION is set in the environment variable,

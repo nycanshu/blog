@@ -13,8 +13,8 @@ import { SITE } from "./src/config";
 
 // https://astro.build/config
 export default defineConfig({
-  site: "https://nycanshu.github.io",
-  base: "/blog",
+  site: process.env.SITE_URL || "http://localhost:4321",
+  base: process.env.SITE_BASE || "/",
   integrations: [
     sitemap({
       filter: page => SITE.showArchives || !page.endsWith("/archives"),
@@ -52,6 +52,11 @@ export default defineConfig({
   env: {
     schema: {
       PUBLIC_GOOGLE_SITE_VERIFICATION: envField.string({
+        access: "public",
+        context: "client",
+        optional: true,
+      }),
+      PUBLIC_GA_ID: envField.string({
         access: "public",
         context: "client",
         optional: true,
