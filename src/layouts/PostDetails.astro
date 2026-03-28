@@ -232,30 +232,29 @@ const nextPost =
   /** Attaches copy buttons to code blocks in the document,
    * allowing users to copy code easily. */
   function attachCopyButtons() {
-    const copyButtonLabel = "Copy";
+    const copyIcon = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>`;
+    const checkIcon = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
     const codeBlocks = Array.from(document.querySelectorAll("pre"));
 
     for (const codeBlock of codeBlocks) {
       const wrapper = document.createElement("div");
       wrapper.style.position = "relative";
 
-      // Check if --file-name-offset custom property exists
       const computedStyle = getComputedStyle(codeBlock);
       const hasFileNameOffset =
         computedStyle.getPropertyValue("--file-name-offset").trim() !== "";
 
-      // Determine the top positioning class
       const topClass = hasFileNameOffset
         ? "top-(--file-name-offset)"
         : "-top-3";
 
       const copyButton = document.createElement("button");
-      copyButton.className = `copy-code absolute end-3 ${topClass} rounded bg-muted border border-muted px-2 py-1 text-xs leading-4 text-foreground font-medium`;
-      copyButton.innerHTML = copyButtonLabel;
+      copyButton.className = `copy-code absolute end-3 ${topClass} rounded-md bg-muted/80 border border-border/50 p-1.5 text-foreground/50 hover:text-foreground transition-colors duration-200`;
+      copyButton.innerHTML = copyIcon;
+      copyButton.title = "Copy code";
       codeBlock.setAttribute("tabindex", "0");
       codeBlock.appendChild(copyButton);
 
-      // wrap codebock with relative parent element
       codeBlock?.parentNode?.insertBefore(wrapper, codeBlock);
       wrapper.appendChild(codeBlock);
 
@@ -270,12 +269,13 @@ const nextPost =
 
       await navigator.clipboard.writeText(text ?? "");
 
-      // visual feedback that task is completed
-      button.innerText = "Copied";
+      button.innerHTML = checkIcon;
+      button.classList.add("text-green-400");
 
       setTimeout(() => {
-        button.innerText = copyButtonLabel;
-      }, 700);
+        button.innerHTML = copyIcon;
+        button.classList.remove("text-green-400");
+      }, 1500);
     }
   }
   attachCopyButtons();

@@ -2,36 +2,48 @@
 
 @layer base {
   .app-prose {
-    @apply prose prose-lg;
+    @apply prose prose-base;
 
-    h1,
-    h2,
-    h3,
-    h4,
+    /* === Clear heading hierarchy === */
+    h1 {
+      @apply mt-12 mb-6 text-3xl sm:text-4xl font-bold tracking-tight text-foreground leading-tight;
+    }
+
+    h2 {
+      @apply mt-14 mb-4 text-2xl sm:text-[1.7rem] font-bold tracking-tight text-foreground leading-snug;
+      @apply pb-2 border-b border-border/50;
+    }
+
+    h3 {
+      @apply mt-10 mb-3 text-xl font-semibold text-foreground/90 leading-snug;
+    }
+
+    h4 {
+      @apply mt-8 mb-2 text-lg font-semibold text-foreground/80;
+    }
+
     th {
       @apply mb-3 text-foreground;
     }
 
-    h2 {
-      @apply mt-12 text-xl font-semibold tracking-tight;
+    /* === Body text — smaller, muted, breathable === */
+    p {
+      @apply text-[0.95rem] text-foreground/75 leading-[1.9] mb-4;
     }
 
-    h3 {
-      @apply mt-8 italic;
+    strong {
+      @apply text-foreground font-semibold;
     }
 
-    p,
-    strong,
     ol,
-    ul,
+    ul {
+      @apply text-[0.95rem] text-foreground/75 leading-[1.8];
+    }
+
     figcaption,
     table,
     code {
       @apply text-foreground;
-    }
-
-    p {
-      @apply leading-[1.8];
     }
 
     a {
@@ -43,11 +55,11 @@
     }
 
     li {
-      @apply marker:text-accent/60;
+      @apply marker:text-accent/50 mb-2 text-[0.95rem];
     }
 
     hr {
-      @apply border-border;
+      @apply border-border my-10;
     }
 
     img {
@@ -65,7 +77,11 @@
       }
 
       th {
-        @apply py-1.5 bg-muted/50;
+        @apply py-1.5 bg-muted/50 text-sm font-semibold;
+      }
+
+      td {
+        @apply text-foreground/80;
       }
 
       code {
@@ -74,7 +90,7 @@
     }
 
     code {
-      @apply rounded-md bg-muted/75 px-1.5 py-0.5 wrap-break-word text-sm text-foreground before:content-none after:content-none;
+      @apply rounded-md bg-muted/75 px-1.5 py-0.5 wrap-break-word text-[0.85em] text-foreground before:content-none after:content-none;
     }
 
     .astro-code code {
@@ -82,7 +98,8 @@
     }
 
     blockquote {
-      @apply border-s-2 border-s-accent/50 wrap-break-word opacity-80 italic;
+      @apply border-s-2 border-s-accent/40 wrap-break-word italic;
+      @apply text-[0.9rem] text-foreground/55;
     }
 
     details {
@@ -94,7 +111,7 @@
     }
 
     pre {
-      @apply rounded-xl border border-border;
+      @apply rounded-xl border border-border my-6;
       @apply focus-visible:border-transparent focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-dashed;
     }
   }
