@@ -14,16 +14,28 @@ import { getBase } from "@/utils/getBase";
     id="main-content"
     class="app-layout flex flex-1 items-center justify-center"
   >
-    <div class="mb-14 flex flex-col items-center justify-center">
-      <h1 class="text-9xl font-bold text-accent">404</h1>
-      <span aria-hidden="true">¯\_(ツ)_/¯</span>
-      <p class="mt-4 text-2xl sm:text-3xl">Page Not Found</p>
-      <LinkButton
-        href={getBase("/")}
-        class="my-6 text-lg underline decoration-dashed underline-offset-8"
-      >
-        Go back home
-      </LinkButton>
+    <div class="mb-14 flex flex-col items-center justify-center text-center">
+      <h1 class="text-8xl sm:text-9xl font-bold text-accent/20">404</h1>
+      <p class="mt-4 text-xl sm:text-2xl font-semibold text-foreground">
+        Well, this is embarrassing...
+      </p>
+      <p class="mt-2 text-sm sm:text-base text-foreground/50 max-w-md">
+        The page you're looking for isn't here. Feel free to return to the home page or browse the posts to find what you need.
+      </p>
+      <div class="mt-6 flex gap-3">
+        <LinkButton
+          href={getBase("/")}
+          class="px-5 py-2.5 rounded-lg bg-accent/10 text-accent text-sm font-medium hover:bg-accent/20 transition-colors duration-200"
+        >
+          Home
+        </LinkButton>
+        <LinkButton
+          href={getBase("/posts/")}
+          class="px-5 py-2.5 rounded-lg glass text-foreground/70 text-sm font-medium hover:text-accent transition-colors duration-200"
+        >
+          Browse Posts
+        </LinkButton>
+      </div>
     </div>
   </main>
 
