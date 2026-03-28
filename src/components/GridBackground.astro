@@ -21,13 +21,13 @@
 
     const CELL_SIZE = isMobile ? 50 : 44;
     const DOT_RADIUS = 0.6;
-    const HOVER_RADIUS = isMobile ? 80 : 120;
-    const MOUSE_SMOOTHING = 0.18;
+    const HOVER_RADIUS = isMobile ? 90 : 140;
+    const MOUSE_SMOOTHING = 0.25;
 
     // Spring physics config
-    const STIFFNESS = 0.015;
-    const DAMPING = 0.85;
-    const MAX_DISPLACEMENT = 12;
+    const STIFFNESS = 0.02;
+    const DAMPING = 0.82;
+    const MAX_DISPLACEMENT = 20;
 
     let rawMouseX = -1000;
     let rawMouseY = -1000;
@@ -119,8 +119,8 @@
           // Push dots away from cursor
           targetX = dot.baseX + Math.cos(angle) * displacement;
           targetY = dot.baseY + Math.sin(angle) * displacement;
-          targetOpacity = force * 0.6;
-          targetRadius = DOT_RADIUS + force * 1.5;
+          targetOpacity = force * 0.8;
+          targetRadius = DOT_RADIUS + force * 2;
         }
 
         // Spring physics toward target
