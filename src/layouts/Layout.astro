@@ -15,6 +15,8 @@ type Props = {
   pubDatetime?: Date;
   modDatetime?: Date | null;
   scrollSmooth?: boolean;
+  tags?: string[];
+  ogType?: "website" | "article";
 };
 
 const {
@@ -27,25 +29,49 @@ const {
   pubDatetime,
   modDatetime,
   scrollSmooth = false,
+  tags = [],
+  ogType = pubDatetime ? "article" : "website",
 } = Astro.props;
 
 const socialImageURL = new URL(ogImage, Astro.url);
 
-const structuredData = {
-  "@context": "https://schema.org",
-  "@type": "BlogPosting",
-  headline: `${title}`,
-  image: `${socialImageURL}`,
-  datePublished: `${pubDatetime?.toISOString()}`,
-  ...(modDatetime && { dateModified: modDatetime.toISOString() }),
-  author: [
-    {
+// BlogPosting schema for posts, Person schema for all pages
+const structuredData = pubDatetime
+  ? {
+      "@context": "https://schema.org",
+      "@type": "BlogPosting",
+      headline: title,
+      image: {
+        "@type": "ImageObject",
+        url: `${socialImageURL}`,
+        width: 1200,
+        height: 640,
+      },
+      datePublished: pubDatetime.toISOString(),
+      ...(modDatetime && { dateModified: modDatetime.toISOString() }),
+      ...(tags.length > 0 && { keywords: tags.join(", ") }),
+      ...(tags[0] && { articleSection: tags[0] }),
+      author: [
+        {
+          "@type": "Person",
+          name: author,
+          ...(profile && { url: profile }),
+        },
+      ],
+    }
+  : {
+      "@context": "https://schema.org",
       "@type": "Person",
-      name: `${author}`,
-      ...(profile && { url: profile }),
-    },
-  ],
-};
+      name: SITE.author,
+      url: SITE.website,
+      sameAs: [
+        "https://github.com/nycanshu",
+        "https://www.linkedin.com/in/okay-anshu/",
+        "https://dev.to/okay_anshu",
+        "https://www.npmjs.com/~nycanshu",
+      ],
+      jobTitle: "Software Engineer",
+    };
 ---
 
 <!doctype html>
@@ -61,6 +87,10 @@ const structuredData = {
     <link rel="canonical" href={canonicalURL} />
     <meta name="generator" content={Astro.generator} />
 
+    <!-- Preconnect to external origins -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    {PUBLIC_GA_ID && <link rel="preconnect" href="https://www.googletagmanager.com" />}
+
     <!-- Load Font -->
     <Font
       cssVariable="--font-google-sans-code"
@@ -72,15 +102,20 @@ const structuredData = {
     <meta name="title" content={title} />
     <meta name="description" content={description} />
     <meta name="author" content={author} />
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large" />
+    {tags.length > 0 && <meta name="keywords" content={tags.join(", ")} />}
     <link rel="sitemap" href="/sitemap-index.xml" />
 
-    <!-- Open Graph / Facebook -->
+    <!-- Open Graph -->
+    <meta property="og:type" content={ogType} />
+    <meta property="og:site_name" content={SITE.title} />
+    <meta property="og:locale" content="en_US" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonicalURL} />
     <meta property="og:image" content={socialImageURL} />
 
-    <!-- Article Published/Modified time -->
+    <!-- Article dates (posts only) -->
     {
       pubDatetime && (
         <meta
@@ -97,6 +132,7 @@ const structuredData = {
         />
       )
     }
+    {tags.map(tag => <meta property="article:tag" content={tag} />)}
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image" />
@@ -105,15 +141,14 @@ const structuredData = {
     <meta property="twitter:description" content={description} />
     <meta property="twitter:image" content={socialImageURL} />
 
-    <!-- Google JSON-LD Structured data -->
+    <!-- JSON-LD Structured Data -->
     <script
       type="application/ld+json"
       is:inline
       set:html={JSON.stringify(structuredData)}
     />
 
-    <!-- Enable RSS feed auto-discovery  -->
-    <!-- https://docs.astro.build/en/recipes/rss/#enabling-rss-feed-auto-discovery -->
+    <!-- RSS feed auto-discovery -->
     <link
       rel="alternate"
       type="application/rss+xml"
@@ -139,9 +174,6 @@ const structuredData = {
     }
 
     {
-      // If PUBLIC_GOOGLE_SITE_VERIFICATION is set in the environment variable,
-      // include google-site-verification tag in the heading
-      // Learn more: https://support.google.com/webmasters/answer/9008080#meta_tag_verification&zippy=%2Chtml-tag
       PUBLIC_GOOGLE_SITE_VERIFICATION && (
         <meta
           name="google-site-verification"
@@ -152,10 +184,10 @@ const structuredData = {
 
     <ClientRouter />
 
-    <!-- Minimal inline script to prevent FOUC - sets theme immediately -->
+    <!-- Prevent FOUC — set theme immediately -->
     <script is:inline>
       (function () {
-        const initialColorScheme = "dark"; // "light" | "dark"
+        const initialColorScheme = "dark";
         const currentTheme = localStorage.getItem("theme");
 
         function getPreferTheme() {
@@ -167,11 +199,8 @@ const structuredData = {
         }
 
         const themeValue = getPreferTheme();
-
-        // Set theme immediately to prevent flash
         document.firstElementChild?.setAttribute("data-theme", themeValue);
 
-        // Export minimal API for external script
         window.theme = {
           themeValue: themeValue,
           getTheme: () => window.theme.themeValue,
@@ -185,9 +214,7 @@ const structuredData = {
   <body>
     <slot />
 
-    <!-- Load full theme logic -->
     <script src="../scripts/theme.ts"></script>
-    <!-- Global scroll-reveal animations -->
     <script src="../scripts/reveal.ts"></script>
   </body>
 </html>
