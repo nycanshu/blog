@@ -1,0 +1,96 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import Header from "@/components/Header.astro";
+import Footer from "@/components/Footer.astro";
+import { SITE } from "@/config";
+
+const projects = [
+  {
+    title: "radosgw-admin",
+    description:
+      "Node.js SDK for the Ceph RADOS Gateway Admin Operations API. Manage users, buckets, quotas, and usage programmatically.",
+    url: "https://github.com/nycanshu/radosgw-admin",
+    docs: "https://radosgw-admin.nycanshu.dev",
+    tags: ["node.js", "ceph", "sdk", "typescript"],
+  },
+  {
+    title: "nycanshu/blog",
+    description:
+      "This blog — a custom Astro theme called 'The Void' with glass-morphism UI, scroll animations, and env-driven config. Also usable as a template.",
+    url: "https://github.com/nycanshu/blog",
+    tags: ["astro", "tailwind", "blog", "template"],
+  },
+];
+---
+
+<Layout title={`Projects | ${SITE.title}`}>
+  <Header />
+  <main id="main-content" class="app-layout py-12">
+    <div class="reveal">
+      <h1 class="text-3xl font-bold sm:text-4xl">Projects</h1>
+      <p class="mt-2 text-foreground/60">Things I've built and maintain.</p>
+    </div>
+
+    <ul class="mt-10 grid gap-4">
+      {projects.map((project, i) => (
+        <li class="reveal" style={`transition-delay: ${i * 0.08}s;`}>
+          <a
+            href={project.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="group block rounded-xl p-5 -mx-1 transition-all duration-200 hover:bg-accent/5 hover:shadow-[0_0_30px_-5px] hover:shadow-accent/10 border border-transparent hover:border-border"
+          >
+            <div class="flex items-start justify-between gap-4">
+              <div>
+                <h2 class="text-lg font-semibold text-foreground group-hover:text-accent transition-colors duration-200">
+                  {project.title}
+                  <span class="inline-block ml-1 text-foreground/30 group-hover:text-accent/50 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5">&nearr;</span>
+                </h2>
+                <p class="mt-1.5 text-sm text-foreground/60 leading-relaxed">
+                  {project.description}
+                </p>
+              </div>
+            </div>
+            <div class="mt-3 flex flex-wrap gap-2">
+              {project.tags.map(tag => (
+                <span class="text-xs px-2 py-0.5 rounded-full bg-accent/10 text-accent/80">
+                  {tag}
+                </span>
+              ))}
+              {project.docs && (
+                <span class="text-xs px-2 py-0.5 rounded-full bg-muted text-foreground/50">
+                  docs &rarr;
+                </span>
+              )}
+            </div>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </main>
+  <Footer />
+</Layout>
+
+<script>
+  function initReveal() {
+    const reveals = document.querySelectorAll(".reveal:not(.revealed)");
+    if (!reveals.length) return;
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (prefersReducedMotion) {
+      reveals.forEach(el => el.classList.add("revealed"));
+      return;
+    }
+    const observer = new IntersectionObserver(
+      entries => entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("revealed");
+          observer.unobserve(entry.target);
+        }
+      }),
+      { threshold: 0.15 }
+    );
+    reveals.forEach(el => observer.observe(el));
+  }
+  initReveal();
+  document.addEventListener("astro:page-load", initReveal);
+</script>
