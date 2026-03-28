@@ -56,7 +56,7 @@ html[data-theme="dark"] {
 }
 
 @utility app-layout {
-  @apply mx-auto w-full max-w-app px-6;
+  @apply mx-auto w-full max-w-app px-4 sm:px-6;
 }
 
 .active-nav {

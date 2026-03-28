@@ -1,0 +1,201 @@
+---
+/**
+ * Interactive grid background with dots + lines.
+ * Dots near the cursor glow with accent color.
+ * Respects prefers-reduced-motion and theme changes.
+ */
+---
+
+<canvas id="grid-canvas" class="absolute inset-0 w-full h-full pointer-events-none" aria-hidden="true"></canvas>
+
+<script>
+  function initGrid() {
+    const canvas = document.getElementById("grid-canvas") as HTMLCanvasElement;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    // Grid config
+    const CELL_SIZE = 40;
+    const DOT_RADIUS = 1.2;
+    const HOVER_RADIUS = 150;
+
+    let mouseX = -1000;
+    let mouseY = -1000;
+    let animationId: number;
+
+    function getColors() {
+      const isDark = document.documentElement.getAttribute("data-theme") === "dark"
+        || (!document.documentElement.getAttribute("data-theme")
+          && window.matchMedia("(prefers-color-scheme: dark)").matches);
+
+      return {
+        line: isDark ? "rgba(30, 42, 58, 0.35)" : "rgba(226, 224, 240, 0.5)",
+        dot: isDark ? "rgba(30, 42, 58, 0.5)" : "rgba(226, 224, 240, 0.6)",
+        glow: isDark ? "167, 139, 250" : "124, 91, 240", // accent RGB
+      };
+    }
+
+    let colors = getColors();
+
+    function resize() {
+      const rect = canvas.parentElement?.getBoundingClientRect();
+      if (!rect) return;
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+      canvas.style.width = `${rect.width}px`;
+      canvas.style.height = `${rect.height}px`;
+      ctx!.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+
+    function draw() {
+      const w = canvas.width / (window.devicePixelRatio || 1);
+      const h = canvas.height / (window.devicePixelRatio || 1);
+      ctx!.clearRect(0, 0, w, h);
+
+      const cols = Math.ceil(w / CELL_SIZE) + 1;
+      const rows = Math.ceil(h / CELL_SIZE) + 1;
+      const offsetX = (w % CELL_SIZE) / 2;
+      const offsetY = (h % CELL_SIZE) / 2;
+
+      // Draw grid lines
+      ctx!.lineWidth = 0.5;
+      for (let i = 0; i <= cols; i++) {
+        const x = offsetX + i * CELL_SIZE;
+        // Calculate glow for this vertical line
+        const distToMouse = Math.abs(x - mouseX);
+        const glowIntensity = !prefersReducedMotion && distToMouse < HOVER_RADIUS
+          ? (1 - distToMouse / HOVER_RADIUS) * 0.25
+          : 0;
+
+        if (glowIntensity > 0) {
+          ctx!.strokeStyle = `rgba(${colors.glow}, ${glowIntensity})`;
+        } else {
+          ctx!.strokeStyle = colors.line;
+        }
+        ctx!.beginPath();
+        ctx!.moveTo(x, 0);
+        ctx!.lineTo(x, h);
+        ctx!.stroke();
+      }
+
+      for (let j = 0; j <= rows; j++) {
+        const y = offsetY + j * CELL_SIZE;
+        const distToMouse = Math.abs(y - mouseY);
+        const glowIntensity = !prefersReducedMotion && distToMouse < HOVER_RADIUS
+          ? (1 - distToMouse / HOVER_RADIUS) * 0.25
+          : 0;
+
+        if (glowIntensity > 0) {
+          ctx!.strokeStyle = `rgba(${colors.glow}, ${glowIntensity})`;
+        } else {
+          ctx!.strokeStyle = colors.line;
+        }
+        ctx!.beginPath();
+        ctx!.moveTo(0, y);
+        ctx!.lineTo(w, y);
+        ctx!.stroke();
+      }
+
+      // Draw dot intersections
+      for (let i = 0; i <= cols; i++) {
+        for (let j = 0; j <= rows; j++) {
+          const x = offsetX + i * CELL_SIZE;
+          const y = offsetY + j * CELL_SIZE;
+
+          const dx = x - mouseX;
+          const dy = y - mouseY;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+
+          let radius = DOT_RADIUS;
+          let fillStyle = colors.dot;
+
+          if (!prefersReducedMotion && dist < HOVER_RADIUS) {
+            const intensity = 1 - dist / HOVER_RADIUS;
+            const easedIntensity = intensity * intensity; // quadratic falloff
+            radius = DOT_RADIUS + easedIntensity * 2.5;
+            const alpha = 0.3 + easedIntensity * 0.7;
+            fillStyle = `rgba(${colors.glow}, ${alpha})`;
+          }
+
+          ctx!.beginPath();
+          ctx!.arc(x, y, radius, 0, Math.PI * 2);
+          ctx!.fillStyle = fillStyle;
+          ctx!.fill();
+        }
+      }
+    }
+
+    function onMouseMove(e: MouseEvent) {
+      const rect = canvas.getBoundingClientRect();
+      mouseX = e.clientX - rect.left;
+      mouseY = e.clientY - rect.top;
+    }
+
+    function onMouseLeave() {
+      mouseX = -1000;
+      mouseY = -1000;
+    }
+
+    function animate() {
+      draw();
+      animationId = requestAnimationFrame(animate);
+    }
+
+    // Setup
+    resize();
+
+    if (prefersReducedMotion) {
+      // Static render only — no animation loop
+      draw();
+    } else {
+      // Enable mouse tracking on the hero section (parent)
+      const parent = canvas.parentElement;
+      if (parent) {
+        parent.style.pointerEvents = "auto";
+        parent.addEventListener("mousemove", onMouseMove);
+        parent.addEventListener("mouseleave", onMouseLeave);
+      }
+      animate();
+    }
+
+    // Resize handler
+    const resizeObserver = new ResizeObserver(() => {
+      resize();
+      if (prefersReducedMotion) draw();
+    });
+    if (canvas.parentElement) {
+      resizeObserver.observe(canvas.parentElement);
+    }
+
+    // Theme change handler
+    const themeObserver = new MutationObserver(() => {
+      colors = getColors();
+      if (prefersReducedMotion) draw();
+    });
+    themeObserver.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["data-theme"],
+    });
+
+    // Cleanup on page navigation
+    document.addEventListener("astro:before-swap", () => {
+      cancelAnimationFrame(animationId);
+      resizeObserver.disconnect();
+      themeObserver.disconnect();
+      const parent = canvas.parentElement;
+      if (parent) {
+        parent.removeEventListener("mousemove", onMouseMove);
+        parent.removeEventListener("mouseleave", onMouseLeave);
+      }
+    }, { once: true });
+  }
+
+  // Init on load and view transitions
+  initGrid();
+  document.addEventListener("astro:page-load", initGrid);
+</script>

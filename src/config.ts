@@ -2,7 +2,7 @@ export const SITE = {
   website: "https://blog.nycanshu.dev/",
   author: "nycanshu",
   profile: "https://github.com/nycanshu",
-  desc: "Thoughts on Node.js, Ceph, Kubernetes, open source, and the craft of building software.",
+  desc: "Backend engineer writing about Java, Node.js, Ceph, Kubernetes, and open source tooling.",
   title: "nycanshu",
   ogImage: "og-default.jpg",
   lightAndDarkMode: true,

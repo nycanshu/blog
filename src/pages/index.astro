@@ -6,6 +6,7 @@ import Footer from "@/components/Footer.astro";
 import Socials from "@/components/Socials.astro";
 import LinkButton from "@/components/LinkButton.astro";
 import Card from "@/components/Card.astro";
+import GridBackground from "@/components/GridBackground.astro";
 import getSortedPosts from "@/utils/getSortedPosts";
 import IconRss from "@/assets/icons/IconRss.svg";
 import IconArrowRight from "@/assets/icons/IconArrowRight.svg";
@@ -24,31 +25,34 @@ const recentPosts = sortedPosts.filter(({ data }) => !data.featured);
   <Header />
   <main id="main-content" data-layout="index">
     <!-- ===== HERO: The Portal ===== -->
-    <section id="hero" class="relative overflow-hidden min-h-[70vh] flex items-center justify-center">
-      <!-- Animated background orbs -->
+    <section id="hero" class="relative overflow-hidden min-h-[50vh] sm:min-h-[70vh] flex items-center justify-center">
+      <!-- Interactive grid background -->
+      <GridBackground />
+
+      <!-- Subtle glow accents behind the grid -->
       <div class="absolute inset-0 pointer-events-none" aria-hidden="true">
-        <div class="glow-orb absolute top-[15%] left-[10%] w-72 h-72 rounded-full bg-accent/10 blur-[100px]"></div>
-        <div class="glow-orb absolute bottom-[10%] right-[15%] w-96 h-96 rounded-full bg-accent/8 blur-[120px]" style="animation-delay: -2s;"></div>
-        <div class="glow-orb absolute top-[60%] left-[50%] w-48 h-48 rounded-full bg-accent/6 blur-[80px]" style="animation-delay: -4s;"></div>
+        <div class="glow-orb absolute top-[20%] left-[15%] w-64 h-64 sm:w-72 sm:h-72 rounded-full bg-accent/8 blur-[100px]"></div>
+        <div class="glow-orb absolute bottom-[15%] right-[10%] w-72 h-72 sm:w-96 sm:h-96 rounded-full bg-accent/6 blur-[120px]" style="animation-delay: -2s;"></div>
       </div>
 
-      <div class="relative z-10 app-layout text-center py-24 sm:py-32">
+      <div class="relative z-10 app-layout text-center py-16 sm:py-24 lg:py-32">
         <div class="reveal">
-          <h1 class="text-5xl sm:text-7xl font-bold tracking-tight leading-tight">
+          <h1 class="text-3xl sm:text-5xl lg:text-7xl font-bold tracking-tight leading-tight">
             <span class="text-foreground">hey, i'm </span>
             <span class="bg-gradient-to-r from-accent to-purple-400 bg-clip-text text-transparent">nycanshu</span><span class="text-accent">.</span>
           </h1>
         </div>
         <div class="reveal" style="transition-delay: 0.1s;">
-          <p class="mt-6 text-lg sm:text-xl text-foreground/70 max-w-2xl mx-auto leading-relaxed">
-            I write about the things I build, break, and learn —
+          <p class="mt-4 sm:mt-6 text-base sm:text-lg lg:text-xl text-foreground/70 max-w-2xl mx-auto leading-relaxed">
+            I build backend systems and open source tools —
+            <span class="text-foreground/90">Java</span>,
             <span class="text-foreground/90">Node.js</span>,
             <span class="text-foreground/90">Ceph</span>,
             <span class="text-foreground/90">Kubernetes</span>,
-            and the craft of open source software.
+            and whatever else is interesting.
           </p>
         </div>
-        <div class="reveal mt-8 flex items-center justify-center gap-4" style="transition-delay: 0.2s;">
+        <div class="reveal mt-6 sm:mt-8 flex items-center justify-center gap-4" style="transition-delay: 0.2s;">
           {
             SOCIALS.length > 0 && (
               <Socials />
@@ -76,7 +80,7 @@ const recentPosts = sortedPosts.filter(({ data }) => !data.featured);
       featuredPosts.length > 0 && (
         <section
           id="featured"
-          class="app-layout pt-16 pb-8"
+          class="app-layout pt-12 sm:pt-16 pb-8"
         >
           <div class="reveal">
             <h2 class="text-xs font-semibold uppercase tracking-[0.2em] text-accent mb-8">
@@ -129,7 +133,7 @@ const recentPosts = sortedPosts.filter(({ data }) => !data.featured);
 
 <script>
   function initReveal() {
-    const reveals = document.querySelectorAll(".reveal");
+    const reveals = document.querySelectorAll(".reveal:not(.revealed)");
     if (!reveals.length) return;
 
     const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -153,7 +157,6 @@ const recentPosts = sortedPosts.filter(({ data }) => !data.featured);
     reveals.forEach(el => observer.observe(el));
   }
 
-  // Run on initial load and view transitions
   initReveal();
   document.addEventListener("astro:page-load", () => {
     const indexLayout = (document.querySelector("#main-content") as HTMLElement)
