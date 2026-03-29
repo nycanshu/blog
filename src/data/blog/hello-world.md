@@ -1,7 +1,7 @@
 ---
 title: "Hello World — Why I Built This Blog"
 description: "First post. Why I'm writing here instead of Medium, what to expect, and how this site is built."
-pubDatetime: 2026-03-28T00:00:00Z
+pubDatetime: 2026-03-28T00:00:00+05:30
 featured: true
 tags:
   - meta

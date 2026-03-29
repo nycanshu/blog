@@ -1,7 +1,7 @@
 ---
 title: "Building Your First npm Package — What Nobody Tells You About Shipping Production TypeScript"
 description: "Practical lessons from publishing a zero-dependency TypeScript SDK: project structure, testing against real APIs (not mocks), error handling, strict mode, documentation, and the work that comes after the code is done."
-pubDatetime: 2026-03-29T00:00:00Z
+pubDatetime: 2026-03-29T00:00:00+05:30
 featured: true
 tags:
   - npm-package
