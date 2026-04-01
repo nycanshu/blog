@@ -4,7 +4,7 @@
  * Works on all pages via Layout.astro.
  */
 function initReveal() {
-  const reveals = document.querySelectorAll(".reveal:not(.revealed)");
+  const reveals = document.querySelectorAll<HTMLElement>(".reveal:not(.revealed)");
   if (!reveals.length) return;
 
   const prefersReducedMotion = window.matchMedia(
@@ -15,6 +15,12 @@ function initReveal() {
     reveals.forEach(el => el.classList.add("revealed"));
     return;
   }
+
+  // Apply data-reveal-delay as inline transition-delay
+  reveals.forEach(el => {
+    const delay = el.dataset.revealDelay;
+    if (delay) el.style.transitionDelay = `${delay}s`;
+  });
 
   const observer = new IntersectionObserver(
     entries => {

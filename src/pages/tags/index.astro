@@ -5,6 +5,7 @@ import Layout from "@/layouts/Layout.astro";
 import Tag from "@/components/Tag.astro";
 import Header from "@/components/Header.astro";
 import Footer from "@/components/Footer.astro";
+import Reveal from "@/components/Reveal.astro";
 import getUniqueTags from "@/utils/getUniqueTags";
 import { SITE } from "@/config";
 
@@ -17,7 +18,11 @@ let tags = getUniqueTags(posts);
   <Header />
   <Main pageTitle="Tags" pageDesc="All the tags used in posts.">
     <ul class="flex flex-wrap gap-6">
-      {tags.map(({ tag, tagName }) => <Tag {tag} {tagName} />)}
+      {tags.map(({ tag, tagName }, i) => (
+        <Reveal delay={i * 0.04}>
+          <Tag {tag} {tagName} />
+        </Reveal>
+      ))}
     </ul>
   </Main>
   <Footer />

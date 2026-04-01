@@ -2,6 +2,7 @@
 import Layout from "@/layouts/Layout.astro";
 import Header from "@/components/Header.astro";
 import Footer from "@/components/Footer.astro";
+import Reveal from "@/components/Reveal.astro";
 import { SITE } from "@/config";
 import { PROJECT_SECTIONS } from "@/config/projects";
 ---
@@ -9,22 +10,23 @@ import { PROJECT_SECTIONS } from "@/config/projects";
 <Layout title={`Projects | ${SITE.title}`}>
   <Header />
   <main id="main-content" class="app-layout py-8 sm:py-12">
-    <div class="reveal">
+    <Reveal>
       <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold">Projects</h1>
       <p class="mt-2 text-sm sm:text-base text-foreground/60">Things I've built, shipped, and maintain.</p>
-    </div>
+    </Reveal>
 
     {PROJECT_SECTIONS.map((section, si) => (
       <section class="mt-10 sm:mt-14">
-        <div class="reveal" style={`transition-delay: ${si * 0.05}s;`}>
+        <Reveal delay={si * 0.05}>
           <h2 class="text-xs font-semibold uppercase tracking-[0.2em] text-accent mb-6">
             {section.label}
           </h2>
-        </div>
+        </Reveal>
 
         <ul class="grid gap-3">
           {section.projects.map((project, pi) => (
-            <li class="reveal" style={`transition-delay: ${(si * 0.05) + (pi * 0.06)}s;`}>
+            <Reveal delay={(si * 0.05) + (pi * 0.06)}>
+              <li>
               <div class="group rounded-xl p-4 sm:p-5 -mx-1 transition-all duration-200 hover:bg-accent/5 hover:shadow-[0_0_30px_-5px] hover:shadow-accent/10 border border-transparent hover:border-border">
                 <div class="flex items-start justify-between gap-3">
                   <div class="min-w-0 flex-1">
@@ -81,7 +83,8 @@ import { PROJECT_SECTIONS } from "@/config/projects";
                   )}
                 </div>
               </div>
-            </li>
+              </li>
+            </Reveal>
           ))}
         </ul>
       </section>

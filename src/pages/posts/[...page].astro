@@ -7,6 +7,7 @@ import Header from "@/components/Header.astro";
 import Footer from "@/components/Footer.astro";
 import Card from "@/components/Card.astro";
 import Pagination from "@/components/Pagination.astro";
+import Reveal from "@/components/Reveal.astro";
 import getSortedPosts from "@/utils/getSortedPosts";
 import { SITE } from "@/config";
 
@@ -22,7 +23,11 @@ const { page } = Astro.props;
   <Header />
   <Main pageTitle="Posts" pageDesc="All the articles I've posted.">
     <ul>
-      {page.data.map(data => <Card {...data} />)}
+      {page.data.map((data, i) => (
+        <Reveal delay={i * 0.06}>
+          <Card {...data} />
+        </Reveal>
+      ))}
     </ul>
   </Main>
 
