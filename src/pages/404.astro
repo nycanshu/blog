@@ -3,6 +3,7 @@ import Layout from "@/layouts/Layout.astro";
 import Header from "@/components/Header.astro";
 import Footer from "@/components/Footer.astro";
 import LinkButton from "@/components/LinkButton.astro";
+import Reveal from "@/components/Reveal.astro";
 import { SITE } from "@/config";
 import { getBase } from "@/utils/getBase";
 ---
@@ -15,27 +16,35 @@ import { getBase } from "@/utils/getBase";
     class="app-layout flex flex-1 items-center justify-center"
   >
     <div class="mb-14 flex flex-col items-center justify-center text-center">
-      <h1 class="text-8xl sm:text-9xl font-bold text-accent/20">404</h1>
-      <p class="mt-4 text-xl sm:text-2xl font-semibold text-foreground">
-        Well, this is embarrassing...
-      </p>
-      <p class="mt-2 text-sm sm:text-base text-foreground/50 max-w-md">
-        The page you're looking for isn't here. Feel free to return to the home page or browse the posts to find what you need.
-      </p>
-      <div class="mt-6 flex gap-3">
-        <LinkButton
-          href={getBase("/")}
-          class="px-5 py-2.5 rounded-lg bg-accent/10 text-accent text-sm font-medium hover:bg-accent/20 transition-colors duration-200"
-        >
-          Home
-        </LinkButton>
-        <LinkButton
-          href={getBase("/posts/")}
-          class="px-5 py-2.5 rounded-lg glass text-foreground/70 text-sm font-medium hover:text-accent transition-colors duration-200"
-        >
-          Browse Posts
-        </LinkButton>
-      </div>
+      <Reveal>
+        <h1 class="text-8xl sm:text-9xl font-bold text-accent/20">404</h1>
+      </Reveal>
+      <Reveal delay={0.1}>
+        <p class="mt-4 text-xl sm:text-2xl font-semibold text-foreground">
+          Well, this is embarrassing...
+        </p>
+      </Reveal>
+      <Reveal delay={0.18}>
+        <p class="mt-2 text-sm sm:text-base text-foreground/50 max-w-md">
+          The page you're looking for isn't here. Feel free to return to the home page or browse the posts to find what you need.
+        </p>
+      </Reveal>
+      <Reveal delay={0.24}>
+        <div class="mt-6 flex gap-3">
+          <LinkButton
+            href={getBase("/")}
+            class="px-5 py-2.5 rounded-lg bg-accent/10 text-accent text-sm font-medium hover:bg-accent/20 transition-colors duration-200"
+          >
+            Home
+          </LinkButton>
+          <LinkButton
+            href={getBase("/posts/")}
+            class="px-5 py-2.5 rounded-lg glass text-foreground/70 text-sm font-medium hover:text-accent transition-colors duration-200"
+          >
+            Browse Posts
+          </LinkButton>
+        </div>
+      </Reveal>
     </div>
   </main>
 

@@ -8,6 +8,7 @@ import Footer from "@/components/Footer.astro";
 import Card from "@/components/Card.astro";
 import Pagination from "@/components/Pagination.astro";
 import getUniqueTags from "@/utils/getUniqueTags";
+import Reveal from "@/components/Reveal.astro";
 import getPostsByTag from "@/utils/getPostsByTag";
 import { SITE } from "@/config";
 
@@ -40,7 +41,11 @@ const { page, tagName } = Astro.props;
   >
     <h1 slot="title" transition:name={tag}>{`Tag:${tag}`}</h1>
     <ul>
-      {page.data.map(data => <Card {...data} />)}
+      {page.data.map((data, i) => (
+        <Reveal delay={i * 0.06}>
+          <Card {...data} />
+        </Reveal>
+      ))}
     </ul>
   </Main>
 

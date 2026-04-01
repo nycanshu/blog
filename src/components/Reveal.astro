@@ -1,0 +1,28 @@
+---
+/**
+ * Universal scroll-reveal wrapper.
+ * Fades in + slides up when visible, driven by the
+ * IntersectionObserver in src/scripts/reveal.ts.
+ *
+ * Usage:
+ *   <Reveal>             — default fade-in + slide-up
+ *   <Reveal delay={0.1}> — staggered delay (seconds)
+ *   <Reveal class="mt-4"> — extra classes
+ */
+
+type Props = {
+  delay?: number;
+  class?: string;
+  [attr: string]: any;
+};
+
+const { delay, class: className, ...rest } = Astro.props;
+---
+
+<div
+  class:list={["reveal", className]}
+  {...(delay != null && { "data-reveal-delay": String(delay) })}
+  {...rest}
+>
+  <slot />
+</div>
