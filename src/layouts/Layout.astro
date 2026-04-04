@@ -4,6 +4,7 @@ import { ClientRouter } from "astro:transitions";
 import { PUBLIC_GOOGLE_SITE_VERIFICATION, PUBLIC_GA_ID } from "astro:env/client";
 import { SITE } from "@/config";
 import "@/styles/global.css";
+import GridBackground from "@/components/GridBackground.astro";
 
 type Props = {
   title?: string;
@@ -212,6 +213,7 @@ const structuredData = pubDatetime
     </script>
   </head>
   <body>
+    <GridBackground />
     <slot />
 
     <script src="../scripts/theme.ts"></script>

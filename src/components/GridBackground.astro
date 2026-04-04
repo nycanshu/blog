@@ -1,12 +1,12 @@
 ---
 /**
- * Interactive grid background with dots + lines.
- * Uses spring physics for organic hover feel.
- * Supports touch on mobile. Respects prefers-reduced-motion.
+ * Interactive grid background — fixed, full-page.
+ * Spring physics dots glow and push away from cursor anywhere on the page.
+ * Lives in Layout.astro so it spans all pages.
  */
 ---
 
-<canvas id="grid-canvas" class="absolute inset-0 w-full h-full pointer-events-none" aria-hidden="true"></canvas>
+<canvas id="grid-canvas" class="fixed inset-0 w-full h-full pointer-events-none" style="z-index: 0;" aria-hidden="true"></canvas>
 
 <script>
   function initGrid() {
@@ -24,7 +24,6 @@
     const HOVER_RADIUS = isMobile ? 90 : 140;
     const MOUSE_SMOOTHING = 0.25;
 
-    // Spring physics config
     const STIFFNESS = 0.02;
     const DAMPING = 0.82;
     const MAX_DISPLACEMENT = 20;
@@ -82,19 +81,18 @@
     }
 
     function resize() {
-      const rect = canvas.parentElement?.getBoundingClientRect();
-      if (!rect) return;
       const dpr = window.devicePixelRatio || 1;
-      canvas.width = rect.width * dpr;
-      canvas.height = rect.height * dpr;
-      canvas.style.width = `${rect.width}px`;
-      canvas.style.height = `${rect.height}px`;
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      canvas.width = w * dpr;
+      canvas.height = h * dpr;
+      canvas.style.width = `${w}px`;
+      canvas.style.height = `${h}px`;
       ctx!.setTransform(dpr, 0, 0, dpr, 0, 0);
-      buildGrid(rect.width, rect.height);
+      buildGrid(w, h);
     }
 
     function update() {
-      // Smooth mouse tracking
       smoothMouseX += (rawMouseX - smoothMouseX) * MOUSE_SMOOTHING;
       smoothMouseY += (rawMouseY - smoothMouseY) * MOUSE_SMOOTHING;
 
@@ -104,7 +102,6 @@
         const distSq = dx * dx + dy * dy;
         const radiusSq = HOVER_RADIUS * HOVER_RADIUS;
 
-        // Target is always base position
         let targetX = dot.baseX;
         let targetY = dot.baseY;
         let targetOpacity = 0;
@@ -112,18 +109,16 @@
 
         if (distSq < radiusSq) {
           const dist = Math.sqrt(distSq);
-          const force = 1 - (distSq / radiusSq); // quadratic falloff
+          const force = 1 - (distSq / radiusSq);
           const angle = Math.atan2(dy, dx);
           const displacement = force * MAX_DISPLACEMENT;
 
-          // Push dots away from cursor
           targetX = dot.baseX + Math.cos(angle) * displacement;
           targetY = dot.baseY + Math.sin(angle) * displacement;
           targetOpacity = force * 0.8;
           targetRadius = DOT_RADIUS + force * 2;
         }
 
-        // Spring physics toward target
         const forceX = (targetX - dot.x) * STIFFNESS;
         const forceY = (targetY - dot.y) * STIFFNESS;
         dot.vx = (dot.vx + forceX) * DAMPING;
@@ -131,18 +126,16 @@
         dot.x += dot.vx;
         dot.y += dot.vy;
 
-        // Smooth opacity and radius
         dot.opacity += (targetOpacity - dot.opacity) * 0.1;
         dot.radius += (targetRadius - dot.radius) * 0.1;
       }
     }
 
     function draw() {
-      const w = canvas.width / (window.devicePixelRatio || 1);
-      const h = canvas.height / (window.devicePixelRatio || 1);
+      const w = window.innerWidth;
+      const h = window.innerHeight;
       ctx!.clearRect(0, 0, w, h);
 
-      // Draw grid lines (static, no spring on lines)
       ctx!.lineWidth = 0.5;
       ctx!.strokeStyle = colors.line;
       const offsetX = (w % CELL_SIZE) / 2;
@@ -161,8 +154,6 @@
       }
       ctx!.stroke();
 
-      // Draw dots — batch by opacity for performance
-      // Base dots (static, one batch)
       ctx!.beginPath();
       ctx!.fillStyle = colors.dot;
       for (const dot of dots) {
@@ -173,7 +164,6 @@
       }
       ctx!.fill();
 
-      // Glowing dots (spring-displaced, drawn individually)
       for (const dot of dots) {
         if (dot.opacity >= 0.01) {
           ctx!.beginPath();
@@ -190,49 +180,41 @@
       animationId = requestAnimationFrame(animate);
     }
 
-    // Pointer handling (works for both mouse and touch)
-    function onPointerMove(x: number, y: number) {
-      const rect = canvas.getBoundingClientRect();
-      rawMouseX = x - rect.left;
-      rawMouseY = y - rect.top;
-    }
-
-    function onPointerLeave() {
-      rawMouseX = -1000;
-      rawMouseY = -1000;
-    }
-
-    // Setup
     resize();
 
     if (prefersReducedMotion) {
-      draw(); // static grid only
+      draw();
     } else {
-      const parent = canvas.parentElement;
-      if (parent) {
-        parent.style.pointerEvents = "auto";
+      // Listen on document — covers the whole page
+      document.addEventListener("mousemove", (e) => {
+        rawMouseX = e.clientX;
+        rawMouseY = e.clientY;
+      });
+      document.addEventListener("mouseleave", () => {
+        rawMouseX = -1000;
+        rawMouseY = -1000;
+      });
 
-        // Mouse events
-        parent.addEventListener("mousemove", (e) => onPointerMove(e.clientX, e.clientY));
-        parent.addEventListener("mouseleave", onPointerLeave);
+      document.addEventListener("touchstart", (e) => {
+        rawMouseX = e.touches[0].clientX;
+        rawMouseY = e.touches[0].clientY;
+      }, { passive: true });
+      document.addEventListener("touchmove", (e) => {
+        rawMouseX = e.touches[0].clientX;
+        rawMouseY = e.touches[0].clientY;
+      }, { passive: true });
+      document.addEventListener("touchend", () => {
+        rawMouseX = -1000;
+        rawMouseY = -1000;
+      }, { passive: true });
 
-        // Touch events (mobile)
-        parent.addEventListener("touchstart", (e) => {
-          onPointerMove(e.touches[0].clientX, e.touches[0].clientY);
-        }, { passive: true });
-        parent.addEventListener("touchmove", (e) => {
-          onPointerMove(e.touches[0].clientX, e.touches[0].clientY);
-        }, { passive: true });
-        parent.addEventListener("touchend", onPointerLeave, { passive: true });
-      }
       animate();
     }
 
-    const resizeObserver = new ResizeObserver(() => {
+    window.addEventListener("resize", () => {
       resize();
       if (prefersReducedMotion) draw();
     });
-    if (canvas.parentElement) resizeObserver.observe(canvas.parentElement);
 
     const themeObserver = new MutationObserver(() => {
       colors = getColors();
@@ -244,7 +226,6 @@
 
     document.addEventListener("astro:before-swap", () => {
       cancelAnimationFrame(animationId);
-      resizeObserver.disconnect();
       themeObserver.disconnect();
     }, { once: true });
   }
