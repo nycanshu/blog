@@ -5,6 +5,7 @@ import Layout from "@/layouts/Layout.astro";
 import Header from "@/components/Header.astro";
 import Footer from "@/components/Footer.astro";
 import Card from "@/components/Card.astro";
+import Reveal from "@/components/Reveal.astro";
 import getPostsByGroupCondition from "@/utils/getPostsByGroupCondition";
 import { SITE } from "@/config";
 
@@ -41,8 +42,8 @@ const months = [
         )
       )
         .sort(([yearA], [yearB]) => Number(yearB) - Number(yearA))
-        .map(([year, yearGroup]) => (
-          <div>
+        .map(([year, yearGroup], yi) => (
+          <Reveal delay={yi * 0.08}>
             <span class="text-2xl font-bold">{year}</span>
             <sup class="text-sm">{yearGroup.length}</sup>
             {Object.entries(
@@ -52,12 +53,12 @@ const months = [
               )
             )
               .sort(([monthA], [monthB]) => Number(monthB) - Number(monthA))
-              .map(([month, monthGroup]) => (
+              .map(([month, monthGroup], mi) => (
                 <div class="flex flex-col sm:flex-row">
-                  <div class="mt-6 min-w-36 text-lg sm:my-6">
+                  <Reveal delay={(yi * 0.08) + (mi * 0.05)} class="mt-6 min-w-36 text-lg sm:my-6">
                     <span class="font-bold">{months[Number(month) - 1]}</span>
                     <sup class="text-xs">{monthGroup.length}</sup>
-                  </div>
+                  </Reveal>
                   <ul>
                     {monthGroup
                       .sort(
@@ -69,13 +70,15 @@ const months = [
                             new Date(a.data.pubDatetime).getTime() / 1000
                           )
                       )
-                      .map(data => (
-                        <Card {...data} />
+                      .map((data, pi) => (
+                        <Reveal delay={(yi * 0.08) + (mi * 0.05) + (pi * 0.04)}>
+                          <Card {...data} />
+                        </Reveal>
                       ))}
                   </ul>
                 </div>
               ))}
-          </div>
+          </Reveal>
         ))
     }
   </Main>

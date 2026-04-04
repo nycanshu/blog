@@ -15,6 +15,7 @@ import { slugifyStr } from "@/utils/slugify";
 import { getReadingTime } from "@/utils/getReadingTime";
 import IconChevronLeft from "@/assets/icons/IconChevronLeft.svg";
 import IconChevronRight from "@/assets/icons/IconChevronRight.svg";
+import Reveal from "@/components/Reveal.astro";
 import { SITE } from "@/config";
 
 type Props = {
@@ -101,37 +102,43 @@ const relatedPosts = posts
     class:list={["app-layout pb-12", { "mt-8": !SITE.showBackButton }]}
     data-pagefind-body
   >
-    <h1
-      transition:name={slugifyStr(title.replaceAll(".", "-"))}
-      class="inline-block text-2xl font-bold text-accent sm:text-3xl"
-    >
-      {title}
-    </h1>
-    <div class="my-2 flex items-center gap-2">
-      <Datetime {pubDatetime} {modDatetime} {timezone} {readingTime} size="lg" />
-      <span
-        aria-hidden="true"
-        class:list={[
-          "max-sm:hidden",
-          { hidden: !SITE.editPost.enabled || hideEditPost },
-        ]}>|</span
+    <Reveal>
+      <h1
+        transition:name={slugifyStr(title.replaceAll(".", "-"))}
+        class="inline-block text-2xl font-bold text-accent sm:text-3xl"
       >
-      <EditPost {hideEditPost} {post} class="max-sm:hidden" />
-    </div>
-    <article
-      id="article"
-      class="app-prose mt-8 w-full max-w-app prose-pre:bg-(--shiki-light-bg) dark:prose-pre:bg-(--shiki-dark-bg)"
-    >
-      <Content />
-    </article>
+        {title}
+      </h1>
+      <div class="my-2 flex items-center gap-2">
+        <Datetime {pubDatetime} {modDatetime} {timezone} {readingTime} size="lg" />
+        <span
+          aria-hidden="true"
+          class:list={[
+            "max-sm:hidden",
+            { hidden: !SITE.editPost.enabled || hideEditPost },
+          ]}>|</span
+        >
+        <EditPost {hideEditPost} {post} class="max-sm:hidden" />
+      </div>
+    </Reveal>
+    <Reveal delay={0.1}>
+      <article
+        id="article"
+        class="app-prose mt-8 w-full max-w-app prose-pre:bg-(--shiki-light-bg) dark:prose-pre:bg-(--shiki-dark-bg)"
+      >
+        <Content />
+      </article>
+    </Reveal>
 
     <hr class="my-8 border-dashed" />
 
     <EditPost class="sm:hidden" {hideEditPost} {post} />
 
-    <ul class="mt-4 mb-8 flex flex-wrap gap-4 sm:my-8">
-      {tags.map(tag => <Tag tag={slugifyStr(tag)} tagName={tag} size="sm" />)}
-    </ul>
+    <Reveal>
+      <ul class="mt-4 mb-8 flex flex-wrap gap-4 sm:my-8">
+        {tags.map(tag => <Tag tag={slugifyStr(tag)} tagName={tag} size="sm" />)}
+      </ul>
+    </Reveal>
 
     <BackToTopButton />
 
@@ -139,23 +146,25 @@ const relatedPosts = posts
 
     <!-- Related Posts -->
     {relatedPosts.length > 0 && (
-      <div data-pagefind-ignore>
+      <Reveal data-pagefind-ignore>
         <hr class="my-6 border-dashed" />
         <h2 class="text-xs font-semibold uppercase tracking-[0.2em] text-accent mb-4">
           Related Posts
         </h2>
         <ul class="grid gap-2">
-          {relatedPosts.map(data => (
-            <Card variant="h3" {...data} />
+          {relatedPosts.map((data, i) => (
+            <Reveal delay={i * 0.08}>
+              <Card variant="h3" {...data} />
+            </Reveal>
           ))}
         </ul>
-      </div>
+      </Reveal>
     )}
 
     <hr class="my-6 border-dashed" />
 
     <!-- Previous/Next Post Buttons -->
-    <div data-pagefind-ignore class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+    <Reveal data-pagefind-ignore class="grid grid-cols-1 gap-6 sm:grid-cols-2">
       {
         prevPost && (
           <a
@@ -184,7 +193,7 @@ const relatedPosts = posts
           </a>
         )
       }
-    </div>
+    </Reveal>
   </main>
   <Footer />
 </Layout>

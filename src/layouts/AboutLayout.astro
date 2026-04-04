@@ -3,6 +3,7 @@ import type { MarkdownLayoutProps } from "astro";
 import Header from "@/components/Header.astro";
 import Footer from "@/components/Footer.astro";
 import Breadcrumb from "@/components/Breadcrumb.astro";
+import Reveal from "@/components/Reveal.astro";
 import Layout from "./Layout.astro";
 import { SITE } from "@/config";
 
@@ -16,8 +17,12 @@ const { frontmatter } = Astro.props;
   <Breadcrumb />
   <main id="main-content" class="app-layout">
     <section id="about" class="app-prose mb-28 max-w-app prose-img:border-0">
-      <h1 class="text-2xl tracking-wider sm:text-3xl">{frontmatter.title}</h1>
-      <slot />
+      <Reveal>
+        <h1 class="text-2xl tracking-wider sm:text-3xl">{frontmatter.title}</h1>
+      </Reveal>
+      <Reveal delay={0.1}>
+        <slot />
+      </Reveal>
     </section>
   </main>
   <Footer />
