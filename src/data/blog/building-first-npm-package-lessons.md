@@ -208,6 +208,59 @@ The code is the easy part. Everything around it is what separates a side project
 
 ---
 
+## FAQ
+
+<details>
+<summary>Should I use ESM, CJS, or both?</summary>
+
+Both. Ship dual builds. Some consumers are still on CJS (older Node projects, Jest without transforms), and newer ones expect ESM. Use `tsup` or `unbuild` to generate both from a single TypeScript source. Set `exports` in `package.json` to map each format correctly.
+
+</details>
+
+<details>
+<summary>When should I publish v1.0.0?</summary>
+
+When you're confident the public API won't change in breaking ways. v1.0.0 is a promise — "I won't break your code without bumping the major version." If you're still iterating on the API shape based on user feedback, stay on 0.x. Most people publish 1.0 too early.
+
+</details>
+
+<details>
+<summary>How do I handle breaking changes without annoying users?</summary>
+
+Deprecate first, remove later. Add console warnings in the current version pointing to the new API. Give users at least one minor release cycle to migrate before you drop the old way in a major bump. Write a migration guide — even a short one saves hours of frustrated issues.
+
+</details>
+
+<details>
+<summary>Is zero dependencies actually worth the effort?</summary>
+
+For small, focused packages — yes. You eliminate supply chain risk, version conflicts, and npm audit noise. For large frameworks — probably not, you'd be reinventing too much. The question is: can I implement this in under 200 lines using Node built-ins? If yes, skip the dependency.
+
+</details>
+
+<details>
+<summary>How do I get my first users?</summary>
+
+Write about it. A dev.to article, a Reddit post in the relevant subreddit, a comment in GitHub Discussions of related projects. Your first 10 users will come from places where people are already searching for the problem you solve — not from npm search.
+
+</details>
+
+<details>
+<summary>Mock tests or integration tests?</summary>
+
+Both, but never only mocks. Mocks test your assumptions about how an API behaves. Integration tests test reality. If your package talks to any external service, mocked tests alone will eventually betray you. Run integration tests against a real instance, even if it's in Docker.
+
+</details>
+
+<details>
+<summary>Do I really need a documentation website?</summary>
+
+For a utility with 3 functions — a good README is enough. For anything with multiple modules, configuration options, or non-obvious patterns — yes. People judge your package by docs before they read a single line of source. A Docusaurus or Starlight site takes an afternoon to set up and pays for itself immediately.
+
+</details>
+
+---
+
 If you work with Ceph, Rook-Ceph, or OpenShift Data Foundation and need to manage RGW users, buckets, or quotas from Node.js:
 
 - [Documentation](https://radosgw-admin.nycanshu.dev)
