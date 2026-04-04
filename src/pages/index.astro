@@ -6,7 +6,6 @@ import Footer from "@/components/Footer.astro";
 import Socials from "@/components/Socials.astro";
 import LinkButton from "@/components/LinkButton.astro";
 import Card from "@/components/Card.astro";
-import GridBackground from "@/components/GridBackground.astro";
 import Reveal from "@/components/Reveal.astro";
 import getSortedPosts from "@/utils/getSortedPosts";
 import IconRss from "@/assets/icons/IconRss.svg";
@@ -27,9 +26,6 @@ const recentPosts = sortedPosts.filter(({ data }) => !data.featured);
   <main id="main-content" data-layout="index">
     <!-- ===== HERO: The Portal ===== -->
     <section id="hero" class="relative overflow-hidden min-h-[50vh] sm:min-h-[70vh] flex items-center justify-center">
-      <!-- Interactive grid background -->
-      <GridBackground />
-
       <!-- Subtle glow accents behind the grid -->
       <div class="absolute inset-0 pointer-events-none" aria-hidden="true">
         <div class="glow-orb absolute top-[20%] left-[15%] w-64 h-64 sm:w-72 sm:h-72 rounded-full bg-accent/8 blur-[100px]"></div>
