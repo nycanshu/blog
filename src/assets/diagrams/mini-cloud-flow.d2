@@ -1,0 +1,90 @@
+direction: down
+
+browser: Browser {
+  shape: rectangle
+  style: {
+    fill: "#7c5bf0"
+    font-color: "#ffffff"
+    stroke: "#a78bfa"
+    border-radius: 8
+  }
+}
+
+vm: "your-vm-ip" {
+  shape: rectangle
+  style: {
+    fill: "#1e2a3a"
+    font-color: "#e2e8f0"
+    stroke: "#7c5bf0"
+    border-radius: 8
+  }
+}
+
+nginx: Nginx {
+  shape: rectangle
+  style: {
+    fill: "#1e2a3a"
+    font-color: "#e2e8f0"
+    stroke: "#7c5bf0"
+    border-radius: 8
+  }
+}
+
+containers: {
+  label: ""
+  style: {
+    fill: "transparent"
+    stroke: "transparent"
+  }
+
+  app1: App1 container {
+    shape: rectangle
+    style: {
+      fill: "#1e2a3a"
+      font-color: "#e2e8f0"
+      stroke: "#7c5bf0"
+      border-radius: 8
+    }
+  }
+
+  app2: App2 container {
+    shape: rectangle
+    style: {
+      fill: "#1e2a3a"
+      font-color: "#e2e8f0"
+      stroke: "#7c5bf0"
+      border-radius: 8
+    }
+  }
+}
+
+postgres: Postgres container {
+  shape: cylinder
+  style: {
+    fill: "#1e2a3a"
+    font-color: "#e2e8f0"
+    stroke: "#a78bfa"
+  }
+}
+
+browser -> vm: DNS lookup {
+  style.stroke: "#a78bfa"
+  style.font-color: "#94a3b8"
+}
+vm -> nginx: {
+  style.stroke: "#a78bfa"
+}
+nginx -> containers.app1: "app1.yourdomain.com" {
+  style.stroke: "#a78bfa"
+  style.font-color: "#94a3b8"
+}
+nginx -> containers.app2: "app2.yourdomain.com" {
+  style.stroke: "#a78bfa"
+  style.font-color: "#94a3b8"
+}
+containers.app1 -> postgres: {
+  style.stroke: "#a78bfa"
+}
+containers.app2 -> postgres: {
+  style.stroke: "#a78bfa"
+}

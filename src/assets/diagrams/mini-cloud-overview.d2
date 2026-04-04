@@ -1,0 +1,73 @@
+direction: down
+
+internet: Internet {
+  shape: cloud
+  style: {
+    fill: "#7c5bf0"
+    font-color: "#ffffff"
+    stroke: "#a78bfa"
+  }
+}
+
+nginx: Nginx Reverse Proxy {
+  shape: rectangle
+  style: {
+    fill: "#1e2a3a"
+    font-color: "#e2e8f0"
+    stroke: "#7c5bf0"
+    border-radius: 8
+  }
+}
+
+apps: {
+  label: ""
+  style: {
+    fill: "transparent"
+    stroke: "transparent"
+  }
+
+  app1: App 1 {
+    shape: rectangle
+    style: {
+      fill: "#1e2a3a"
+      font-color: "#e2e8f0"
+      stroke: "#7c5bf0"
+      border-radius: 8
+    }
+  }
+
+  app2: App 2 {
+    shape: rectangle
+    style: {
+      fill: "#1e2a3a"
+      font-color: "#e2e8f0"
+      stroke: "#7c5bf0"
+      border-radius: 8
+    }
+  }
+}
+
+postgres: PostgreSQL {
+  shape: cylinder
+  style: {
+    fill: "#1e2a3a"
+    font-color: "#e2e8f0"
+    stroke: "#a78bfa"
+  }
+}
+
+internet -> nginx: {
+  style.stroke: "#a78bfa"
+}
+nginx -> apps.app1: {
+  style.stroke: "#a78bfa"
+}
+nginx -> apps.app2: {
+  style.stroke: "#a78bfa"
+}
+apps.app1 -> postgres: {
+  style.stroke: "#a78bfa"
+}
+apps.app2 -> postgres: {
+  style.stroke: "#a78bfa"
+}
