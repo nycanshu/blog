@@ -1,0 +1,70 @@
+direction: right
+
+app: Your App / Linux Tools {
+  shape: rectangle
+  style: {
+    fill: "#7c5bf0"
+    font-color: "#ffffff"
+    stroke: "#a78bfa"
+    border-radius: 8
+  }
+}
+
+fuse: FUSE Kernel Module {
+  shape: rectangle
+  style: {
+    fill: "#1e2a3a"
+    font-color: "#e2e8f0"
+    stroke: "#7c5bf0"
+    border-radius: 8
+  }
+}
+
+s3fs: s3fs-fuse Daemon {
+  shape: rectangle
+  style: {
+    fill: "#1e2a3a"
+    font-color: "#e2e8f0"
+    stroke: "#7c5bf0"
+    border-radius: 8
+  }
+}
+
+endpoint: Ceph RGW / MinIO / AWS S3 {
+  shape: rectangle
+  style: {
+    fill: "#1e2a3a"
+    font-color: "#e2e8f0"
+    stroke: "#7c5bf0"
+    border-radius: 8
+  }
+}
+
+bucket: Bucket {
+  shape: cylinder
+  style: {
+    fill: "#1e2a3a"
+    font-color: "#e2e8f0"
+    stroke: "#a78bfa"
+  }
+}
+
+app -> fuse: "POSIX syscall (user to kernel)" {
+  style.stroke: "#a78bfa"
+  style.font-color: "#94a3b8"
+}
+
+fuse -> s3fs: "FUSE upcall (kernel to user)" {
+  style.stroke: "#a78bfa"
+  style.font-color: "#94a3b8"
+}
+
+s3fs -> endpoint: "HTTPS / S3 API call" {
+  style.stroke: "#a78bfa"
+  style.font-color: "#94a3b8"
+}
+
+endpoint -> bucket: "object read / write" {
+  style.stroke: "#a78bfa"
+  style.font-color: "#94a3b8"
+}
