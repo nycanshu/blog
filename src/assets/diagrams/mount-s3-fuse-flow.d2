@@ -1,0 +1,93 @@
+direction: right
+
+app: App {
+  shape: rectangle
+  style: {
+    fill: "#7c5bf0"
+    font-color: "#ffffff"
+    stroke: "#a78bfa"
+    border-radius: 8
+  }
+}
+
+mount: /mnt/my-bucket {
+  shape: rectangle
+  style: {
+    fill: "#1e2a3a"
+    font-color: "#e2e8f0"
+    stroke: "#7c5bf0"
+    border-radius: 8
+  }
+}
+
+s3fs: s3fs daemon {
+  shape: rectangle
+  style: {
+    fill: "#1e2a3a"
+    font-color: "#e2e8f0"
+    stroke: "#7c5bf0"
+    border-radius: 8
+  }
+}
+
+backend: S3 Backend {
+  style: {
+    fill: "transparent"
+    stroke: "#7c5bf0"
+    stroke-dash: 4
+    font-color: "#a78bfa"
+    border-radius: 8
+  }
+
+  endpoint: Ceph / MinIO / AWS {
+    shape: rectangle
+    style: {
+      fill: "#1e2a3a"
+      font-color: "#e2e8f0"
+      stroke: "#7c5bf0"
+      border-radius: 8
+    }
+  }
+
+  bucket: Bucket {
+    shape: cylinder
+    style: {
+      fill: "#1e2a3a"
+      font-color: "#e2e8f0"
+      stroke: "#a78bfa"
+    }
+  }
+
+  endpoint -> bucket: {
+    style.stroke: "#a78bfa"
+  }
+}
+
+app -> mount: "1. cat file.txt" {
+  style.stroke: "#a78bfa"
+  style.font-color: "#94a3b8"
+}
+mount -> s3fs: "2. FUSE intercepts" {
+  style.stroke: "#a78bfa"
+  style.font-color: "#94a3b8"
+}
+s3fs -> backend.endpoint: "3. GET /file.txt" {
+  style.stroke: "#a78bfa"
+  style.font-color: "#94a3b8"
+}
+
+backend.endpoint -> s3fs: "4. object bytes" {
+  style.stroke: "#7c5bf0"
+  style.stroke-dash: 4
+  style.font-color: "#7c5bf0"
+}
+s3fs -> mount: "5. read() returns" {
+  style.stroke: "#7c5bf0"
+  style.stroke-dash: 4
+  style.font-color: "#7c5bf0"
+}
+mount -> app: "6. file content" {
+  style.stroke: "#7c5bf0"
+  style.stroke-dash: 4
+  style.font-color: "#7c5bf0"
+}

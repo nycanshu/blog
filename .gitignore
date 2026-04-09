@@ -30,3 +30,8 @@ public/pagefind
 
 # Logs
 *.log
+
+
+settings.json
+
+.claude/
